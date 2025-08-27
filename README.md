@@ -9,5 +9,5 @@
 
 LaTeX class for preparing academic papers such as TCCs, dissertations and
 theses according to the guidelines of the Brazilian Association of Technical
-Standards (ABNT).
+Standards (ABNT). Manual: `abntexto.pdf`.
 
