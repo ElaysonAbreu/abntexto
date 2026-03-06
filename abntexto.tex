@@ -1,6 +1,6 @@
-%! Public Domain Software 2022-2025
-%! 2025-08-27
-%! 4.0.5-beta
+%! Public Domain Software 2022-2026
+%! 2026-03-04
+%! 1.0
 %! Elayson Abreu
 %! abntexto.classe@gmail.com
 
@@ -230,7 +230,7 @@
     \today
 \vskip2in\endgroup
 
-\noindent\hfil {\Large\ttfamily 4.0.5-beta}
+\noindent\hfil {\Large\ttfamily 1.0}
 \newpage
 
 \nonum\notoc\section{Sumário}
@@ -261,7 +261,7 @@ As normas ABNT as quais o `abntexto` se propõe a seguir seguem listadas:
 
 \subsection{Nota de compatibilidade}
 
-No salto da versão anterior, 3.2.1-beta, para esta, 4.0.0-beta, muito do código-fonte foi reescrito; funcionalidades foram adicionadas; comandos obsolesceram. Por consequência, documentos antigos irão certamente quebrar em \emph{layout} e aparência.
+No salto da versão anterior, 3.2.1-beta, para esta, 4.0.6-beta, muito do código-fonte foi reescrito; funcionalidades foram adicionadas; comandos obsolesceram. Por consequência, documentos antigos irão certamente quebrar em \emph{layout} e aparência.
 
 Para que os usuários tenham tempo de atualizar para esta nova versão, o arquivo `abntexto-3-2-1-beta.cls` foi deixado no repositório da classe no CTAN\footnote{\url{https://ctan.org/pkg/abntexto}.}. Todavia, para documentos antigos que já foram concluídos, não faz sentido atualizá-los para a versão atual. Nesse caso, seria pertinente copiar o arquivo `abntexto-3-2-1-beta.cls` para o mesmo diretório do documento cuja fase de escrita já foi concluída, chamá-lo por meio de `\documentclass{abntexto-3-2-1-beta}`, e, dessa forma, garantir que o resultado da compilação seja sempre o mesmo.
 
@@ -412,7 +412,7 @@ Também há como alterar o espaço vertical acima e abaixo das seções redefini
 
 \subsection{O uso de \type{\\chapter} e \type{\\part}}
 
-De acordo com a ABNT: \enquote{[\dots] O trabalho acadêmico não pode ser dividido em capítulos; deve ser organizado em seções [\dots]}.
+De acordo com a \textcite{abnt-2024-14724-trabalhos-academicos}: \enquote{[\dots] O trabalho acadêmico não pode ser dividido em capítulos; deve ser organizado em seções [\dots]}.
 
 O usuário pode querer utilizar capítulos no trabalho, apesar de a unidade secional `\section` ser suficiente para um trabalho acadêmico. Para esse propósito, o `abntexto` disponibiliza a instrução \^`\chapter` para a utilização de capítulos no documento, porém não em conformidade com a \textcite{abnt-2024-14724-trabalhos-academicos}, mas no estilo da classe `book`. Para ativá-los é preciso chamar a instrução \^`\usechapters` no preâmbulo.
 
@@ -633,7 +633,6 @@ Existe, ainda, a possibilidade de um arranjo diferente no `multiplace` usando o 
 \src{\me}
 \begin{place}\vbox\bgroup
 \legend{output}{Resultado do \ref{cd:multialt}} \label{out:alt}
-\src{Elaborado pelo autor.}
 \begin{multiplace}
     \sublegend[table]{Tabela de exemplo} \label{tab1}
     \subsrc{\me}
@@ -688,7 +687,7 @@ Com os comandos \^`\appendix` e \^`\annex` você pode inserir apêndices e anexo
     \end{document}
 \end{lst}
 
-Até a versão anterior desta classe, era necessário ajustar a largura dos rótulos no Sumário manualmente redefinindo os comandos \^`\appendixlabelwidth` e \^`\annexlabelwidth`. Todavia, nesta versão, 4.0.0-beta, eles se ajustam automaticamente com o auxílio das novas macroinstruções \^`\eqbox` e \^`\eqboxsize`.
+Até a versão anterior desta classe, era necessário ajustar a largura dos rótulos no Sumário manualmente redefinindo os comandos \^`\appendixlabelwidth` e \^`\annexlabelwidth`. Todavia, nesta versão, 4.0.6-beta, eles se ajustam automaticamente com o auxílio das novas macroinstruções \^`\eqbox` e \^`\eqboxsize`.
 
 \section{Macros para identificação do documento}
 
@@ -950,6 +949,114 @@ Elemento opcional. Você pode criar glossários com `glossaries-extra` \cite{glo
 
 Note que o `cleveref.sty` deve ser carregado depois de `glossaries-extra.sty`, e o `hyperref.sty`, antes.
 
+\appendix{Ambiente \type{place} e o pacote \type{listings}}
+
+O `listings` é um impressor de código-fonte para LaTeX \cite{listings-package}. Você pode usar `\legend` em conjunto com `listings` como mostrado em \ref{cd:listings}. Há algumas observações quanto a essa solução: primeiro, o `listings` não permite que `place` esteja na forma convencional, mas na forma `\place`-`\endplace`. Segundo, a região em \emph{source} terá largura fixa de `\linewidth`, que é a largura padrão de uma `\vbox`.
+
+\legend{code}{\type{\\legend} em conjunto com \type{listings}}
+\src\me
+\label{cd:listings}
+
+\lstnewenvironment{lstn}{%
+    \let\medskipamount=\smallskipamount
+    \place\vbox\bgroup
+}{%
+    \egroup\endplace
+}
+
+\begin{lstn}
+    % No preâmbulo:
+    \usepackage{listings}
+
+    \lstnewenvironment{lst}[1][\placepos]{%
+        \let\medskipamount=\smallskipamount
+        \place[#1]\vbox\bgroup
+    }{%
+        \egroup\endplace
+    }
+    \definelegendplace{code}{Código}{loc}
+
+    % No documento:
+    \nonum\notoc\section{Lista de códigos}
+    \makeloc
+
+    \legend{code}{Título}
+    \src{Fonte}
+    \label{Chave}
+
+    \begin{lst}
+        int x = 1;
+    \end{lst}
+\end{lstn}
+
+Na solução acima o ambiente `lst` é inquebrável, portanto quebras de páginas não são possíveis. Se você precisa de um ambiente que se parta entre páginas, veja a solução abaixo (\ref{cd:longlst}):
+
+\legend{code}{O ambiente \type{longlst} quebrável como alternativa ao \type{lst}}
+\src\me
+\label{cd:longlst}
+
+\begin{lst}
+    \lstnewenvironment{longlst}[1][\placepos]{%
+        \begingroup
+        \processplacearg{#1}%
+        \parskip=0pt \parindent=0pt
+        \initplace
+        \printlegendbox
+        \endgraf\nointerlineskip \nobreak\vskip\medskipamount
+        \resetORIlabel \ignorespaces
+    }{%
+        \unskip
+        \savedplacewidth=\hsize
+        \printsrcbox
+        \finishplace
+        \resetplace \gresetORIlabel
+        \endgroup
+    }
+\end{lst}
+
+\appendix{Ambiente \type{place} e o pacote \type{algorithm2e}}
+
+O pacote `algorithm2e` foi criado para geração de algoritmos em LaTeX \cite{algorithm2e-package}. É possível usar `place` em conjunto com `algorithm2e` (\ref{cd:algorithm2e}):
+
+\legend{code}{\type{algorithm2e} em \type{place}}
+\src\me
+\label{cd:algorithm2e}
+
+\begin{lst}
+    % No preâmbulo
+    \usepackage{algorithm2e}
+
+    \definelegendplace{alg}{Algoritmo}{loa}
+
+    % No documento
+    \nonum\notoc\section{Lista de algoritmos}
+    \makeloa
+
+    \legend{alg}{How to write algorithms}
+    \src{Elaboração própria}
+    \label{alg:chave}
+
+    \begin{place}
+    \begin{algorithm}[H]
+    \SetAlgoLined
+    \KwData{this text}
+    \KwResult{how to write algorithm with \LaTeX2e }
+    initialization\;
+    \While{not at end of this document}{
+        read current\;
+        \eIf{understand}{
+            go to next section\;
+            current section becomes this one\;
+        }{
+            go back to the beginning of current section\;
+        }
+    }
+    \end{algorithm}
+    \end{place}
+\end{lst}
+
+A especificação `H` é obrigatória.
+
 % MACROS PARA O CÓDIGO-FONTE
 % ================================================
 
@@ -992,8 +1099,8 @@ Note que o `cleveref.sty` deve ser carregado depois de `glossaries-extra.sty`, e
 \def\codesubsection{\subsection}
 
 \colorlet{C}{.}
-\definecolor{tmp}{RGB}{128, 0, 32}    \colorlet{P}{tmp}
-\definecolor{tmp}{RGB}{255, 228, 236} \colorlet{B}{tmp}
+\definecolor{tmp}{RGB}{60, 90, 110}  \colorlet{P}{tmp}
+                                     \colorlet{B}{blue!7}
 
 \expanded{\noexpand\lstdefinelanguage{mylang}{
     language    = [latex]tex,
@@ -1046,6 +1153,7 @@ Note que o `cleveref.sty` deve ser carregado depois de `glossaries-extra.sty`, e
 % Solução definitiva:
 % https://tex.stackexchange.com/questions/429970/is-there-a-way-i-can-manually-reset-or-clear-the-citations-in-biblatex
 % Usaremos \newrefsection.
+\newpage
 \begin{corrprint}\def\refname{REFERÊNCIAS}
     \printbibliography
 \end{corrprint}

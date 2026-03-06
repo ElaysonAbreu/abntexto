@@ -1,6 +1,6 @@
-%! Public Domain Software 2022-2025
-%! 2025-08-27
-%! 4.0.5-beta
+%! Public Domain Software 2022-2026
+%! 2026-03-04
+%! 1.0
 %! Elayson Abreu
 %! abntexto.classe@gmail.com
 
@@ -29,7 +29,7 @@
 % Para fins semelhantes, \LaTeX\ define `\def\hb@xt@{\hbox to}`,
 % `\def\@height{height}` e outros mais. Com a eficiência computacional atual,
 % todavia, esses atalhos só são úteis em situações onde se queira a máxima
-% performance. Sendo assim, no `abntexto`, esses atalhos serão deixados de lado
+% performace. Sendo assim, no `abntexto`, esses atalhos serão deixados de lado
 % em favor da legibilidade de código.
 
 % Além disso, arrobas (@) serão evitados de modo geral a fim de reduzir a
@@ -43,7 +43,7 @@
 \NeedsTeXFormat{LaTeX2e}
 
 \ProvidesClass{abntexto}%
-    [2025-08-27 4.0.5-beta Preparation of works in ABNT standards]
+    [2026-03-04 1.0 Preparation of works in ABNT standards]
 %. \end{code}
 
 % Estas são as únicas dependências do `abntexto`. Os pacotes `enumitem` e
@@ -74,7 +74,7 @@
 % meio de `\makeoutline`.
 
 % Parametrizaremos `\NR@gettitle` para suporte ao `nameref.sty`, por meio de
-% `\processsectitle`. Infelizmente, o comando \NR@gettitle não tem versão
+% `\processsectitle`. Infelizmente, o comando `\NR@gettitle` não tem versão
 % não-prefixada. A instrução `\processsectitle` expande para `\NR@gettitle` caso
 % o pacote `nameref` esteja carregado. Do contrário, `\processsectitle` está
 % programado para absorver o argumento. A instrução `\NR@gettitle`, de fato,
@@ -1542,7 +1542,7 @@
     \parindent=0pt \parskip=0pt
     \setbox0=\hbox\bgroup \resetORIlabel
     \let\resetplace=\relax \let\gresetORIlabel=\relax % Caso multiplace
-    \def\placepos{here}%                              % encontre-se dentro
+    \def\savedsrc{}\def\placepos{here}%               % encontre-se dentro
     \def\aboveplace{0pt}\def\belowplace{0pt}%         % de place.
     \ignorespaces
 }{%
