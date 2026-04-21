@@ -1,9 +1,9 @@
 # `abntexto`
 
-Author: Elayson Abreu
-Version: 2026-03-04 1.0
-Contact: abntexto.classe@gmail.com
-License: Public Domain Software 2022-2026
+- Author: Elayson Abreu
+- Version: 2026-03-04 1.0
+- Contact: abntexto.classe@gmail.com
+- License: Public Domain Software 2022-2026
 
 ## About
 
