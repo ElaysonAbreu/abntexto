@@ -1,8 +1,17 @@
-%! Public Domain Software 2022-2026
-%! 2026-03-04
-%! 1.0
-%! Elayson Abreu
-%! abntexto.classe@gmail.com
+%! File:    abntexto-exemplo.tex
+%! License: Public Domain Software
+%! Version: 1.1 2026-05-08
+%! Author:  Elayson Abreu 2022--2026
+%! Contact: abntexto.classe@gmail.com
+%!
+%! This work consists of the files
+%!  abntexto.bib, abntexto-exemplo.bib,
+%!  abntexto.cls, abntexto-3-2-1-beta.cls,
+%!  CHANGELOG.md, README.md,
+%!  abntexto-birds.jpg, abntexto.pdf,
+%!  abntexto-exemplo.pdf, abntexto-onehalf-tex.pdf
+%!  abntexto-onehalf-word.tex, abntexto-screenshot.png,
+%!  abntexto.tex, abntexto-exemplo.tex
 
 % !TeX TS-program = lualatex
 \documentclass{abntexto}
@@ -11,9 +20,9 @@
 % que o tikz-cd.sty funcione corretamente.
 
 \usepackage{lipsum}
-\usepackage[english,brazil,shorthands=off]{babel}
+\usepackage[english,brazilian,shorthands=off]{babel}
 \usepackage[style=abnt]{biblatex} \addbibresource{abntexto-exemplo.bib}
-\usepackage[colorlinks,linktocpage]{hyperref}
+\usepackage{hyperref}
 \usepackage{fontspec}
 \usepackage{unicode-math}
 \usepackage{multirow}
@@ -23,6 +32,7 @@
 \usepackage[siunitx]{circuitikz}
 \usepackage{pseudo}
 \usepackage{tikz-cd}
+\usepackage{xurl}
 \usepackage[brazilian,noabbrev,capitalize]{cleveref} \AtBeginDocument{\def\ref{\cref}}
 
 \setmainfont{XITS}[
@@ -35,16 +45,12 @@
 \setmathfont{XITSMath-Regular.otf}
 \setmonofont{InconsolataN-Regular.otf}
 
-% Só é preciso guardar em macros informações que
-% serão utilizadas repetidas vezes como o Nome ou
-% o Título do trabalho, por exemplo.
-
 \def \Autor{Elayson Abreu}
 \def \Instituicao{Instituição}
 \def \IniciaisDaInstituicao{SIGLA}
 \def \Cidade{Cidade}
 \def \AnoDeEntrega{Ano}
-\def \Titulo{Classe {\ttfamily abntexto} para \LaTeX\ versão 1.0: um exemplo de uso}
+\def \Titulo{Classe {\ttfamily abntexto} para \LaTeX\ versão 1.1: um exemplo de uso}
 \def \TipoDeTrabalho{Dissertação}
 \def \DescricaoDoTrabalho{\TipoDeTrabalho\ apresentada a \Instituicao\ como cumprimento às exigências legais para obtenção do título de Mestre.}
 \def \AreaDeConcentracao{Matemática}
@@ -64,26 +70,17 @@
 \Crefname{d}{Diagrama}{Diagramas}
 \Crefname{f}{Fotografia}{Fotografias}
 
-\def\savednote{}
-\appto\resetplace{\global\let\savednote=\empty}
-\long\def\note#1{\def\savednote{#1}}
-\def\notelabel{Nota:~}
-\def\printnotebox{\par\nointerlineskip \nobreak\vskip\medskipamount
-    \hfil \vbox{\hsize=\savedplacewidth
-        \raggedright\abntsmall\singlesp
-        \setbox0=\hbox{\notelabel}%
-        \leftskip=\wd0 \hskip-\wd0 \notelabel \savednote \strut
-}}
-\appto\printsrcbox{%
-    \ifx\savednote\empty \else \printnotebox \fi
-}
+\def\paragraphfont      {\scshape}
+\def\subparagraphfont   {\scshape\addfontfeatures{FakeSlant=.2}}
+\def\tocparagraphfont   {\scshape}
+\def\tocsubparagraphfont{\scshape\addfontfeatures{FakeSlant=.2}}
 
-\let\onesidelayout=\eletroniclayout
-\let\twosidelayout=\eletroniclayout
+\long\def\note#1{\abntextonote{#1}}
+
 \def\Centro{\noindent\hfil}
 \def\Direita{\noindent\hfill}
 \def\me{Elaboração própria.}
-\def\bibfont{\raggedright\interlinepenalty=10000\singlesp\bibitemsep=\baselineskip}
+\appto\bibfont{\raggedright\interlinepenalty=10000 \singlesp\bibitemsep=\baselineskip}
 \hypersetup{
     pdfauthor   = \Autor,
     pdftitle    = \Titulo,
@@ -95,6 +92,11 @@
 
 
 \begin{document}
+
+% De acordo com a NBR 14724, “os elementos pré-textuais devem iniciar no
+% anverso da folha, com exceção dos dados internacionais de catalogação na publicação,
+% que devem constar no verso da folha de rosto. Recomenda-se que os elementos textuais e
+% pós-textuais sejam apresentados no anverso e verso das folhas (ABNT, 2024, p. 10)”.
 
 % CAPA
 % ================================================
@@ -121,7 +123,7 @@
 
 \Centro\AnoDeEntrega
 
-\newpage
+\newpage\null\newpage
 
 % FOLHA DE ROSTO
 % ================================================
@@ -155,6 +157,7 @@
 % FICHA CATALOGRÁFICA
 % ================================================
 
+\begingroup \twosidelayout
 \leavevmode\vfill
 \Centro Dados Internacionais de Catalogação na Publicação (CIP)
 \Enter[.5]
@@ -184,6 +187,7 @@
     \Direita CDU 000
 \end{indexcard}
 \newpage
+\endgroup
 
 % ERRATA (OPCIONAL)
 % ================================================
@@ -199,7 +203,7 @@
     \bfseries Folha & \bfseries Linha & \bfseries Onde se lê & \bfseries Leia-se \\ \hline
     16 & 10 & auto-clavado & autoclavado \\ \hline
 \end{tabular}
-\newpage
+\newpage\null\newpage
 
 % FOLHA DE APROVAÇÃO
 % ================================================
@@ -228,7 +232,7 @@
 \judgeline{Nome \\ Instituição}\Enter
 \judgeline{Nome \\ Instituição}\Enter
 \judgeline{Nome \\ Instituição}
-\newpage
+\newpage\null\newpage
 
 % DEDICATÓRIA (OPCIONAL)
 % ================================================
@@ -239,14 +243,14 @@
 \begin{minipage}{5cm}
     \itshape Dedico este trabalho a\dots
 \end{minipage}
-\newpage
+\newpage\null\newpage
 
 % AGRADECIMENTOS (OPCIONAL)
 % ================================================
 
 \nonum\notoc\section{Agradecimentos}
 {\parindent=1.5cm\lipsum[1]\par}
-\newpage
+\newpage\null\newpage
 
 % EPÍGRAFE (OPCIONAL)
 % ================================================
@@ -258,41 +262,47 @@
     \noindent {\itshape Epígrafe}\linebreak
     Autor (ano)
 \end{minipage}
-\newpage
+\newpage\null\newpage
 
 % RESUMO
 % ================================================
 
-\nonum\notoc\section{Resumo}
+\nonum\notoc\section{\abstractname}
 % Apesar de ser um parágrafo, o Resumo
 % não costuma ter indentação.
 \noindent \lipsum[1]\Enter
 
 Palavras-chave: Palavra-chave A. Palavra-chave B. Palavra-chave C.
-\newpage
+\newpage\null\newpage
 
 % RESUMO EM LÍNGUA ESTRANGEIRA
 % ================================================
 
-\nonum\notoc\section{Abstract}
-\noindent \lipsum[1]\Enter
+{\selectlanguage{english}\nonum\notoc\section{\abstractname}}
+{\selectlanguage{english}\noindent \lipsum[1]\Enter}
 
-Keywords: Keyword A. Keyword B. Keyword C.
+{\selectlanguage{english}Keywords: Keyword A. Keyword B. Keyword C.\par}
 \newpage
 
 % LISTA DE FIGURAS (OPCIONAL), TABELAS (OPCIONAL), SUMÁRIO
 % ================================================
 
-\nonum\notoc\section{Lista de Figuras}
+\nonum\notoc\section{\listfigurename}
 \makelof
-\newpage
+\newpage\null\newpage
 
-\nonum\notoc\section{Lista de Tabelas}
+\nonum\notoc\section{\listtablename}
 \makelot
-\newpage
+\newpage\null\newpage
 
-\nonum\notoc\section{Sumário}
+\nonum\notoc\section{\contentsname}
 \maketoc
+
+\section{Uma seção primária}
+\subsection{Uma seção secundária}
+\subsubsection{Uma seção terciária}
+\paragraph{Uma seção quaternária}
+\subparagraph{Uma seção quinária}
 
 \section{Tabelas e figuras}
 
@@ -311,9 +321,9 @@ Keywords: Keyword A. Keyword B. Keyword C.
 \end{place}
 
 \legend{table}{Esperança de vida ao nascer, por região socioeconômica. Brasil, 1940--1980.}
-\src{\textcite[][adaptado]{ibge1993}.}
+\src{\textcite[adaptado]{ibge1993}.}
 \note{Média das esperanças de vida ao nascer, resultantes de interpolação linear, nas Tábuas de Mortalidade Modelo Brasil, das probabilidades de morrer até as idades de 2, 3 e 5 anos, obtidas através do emprego da Técnica de Brass.\\ Sinais convencionais utilizados:
-\par\nobreak\vskip3pt
+    \par\vskip3pt
     \begin{tabular}{rl}
     ..  & Não se aplica dado numérico. \\
     ... & Dado numérico não disponível.
@@ -397,9 +407,11 @@ Ver \ref{tab:pessoas-residentes-em}, \ref{fig1}.
 
 \ref{g:fun} elaborado com {\ttfamily tikz.sty}. \ref{q:etanol} desenhado com {\ttfamily chemfig.sty}. \ref{circ:am} desenhado com {\ttfamily circuitikz.sty}. \ref{a:exemplo} escrito com {\ttfamily pseudo.sty}. \ref{d:exemplo} elaborado com {\ttfamily tikz-cd.sty}. Ver \ref{f:pass}.
 
-\begin{multiplace} \hfil \def\belowplace{0pt}%
-    \sublegend[g]{Função quadrática} \label{g:fun}
+\begin{multiplace}
+    \sublegend[g]{Função quadrática}
+    \label{g:fun}
     \subsrc\me
+    \hfil
     \begin{subplace}
         \begin{tikzpicture}[scale=.75]
           % Eixos
@@ -423,14 +435,17 @@ Ver \ref{tab:pessoas-residentes-em}, \ref{fig1}.
           \node[blue] at (1.3, 1.6) {$f(x) = x^2$};
         \end{tikzpicture}
     \end{subplace}
-    \sublegend[c]{A estrutura química do etanol} \label{q:etanol}
+    \sublegend[c]{A estrutura química do etanol}
+    \label{q:etanol}
     \subsrc\me
+    \hfil
     \begin{subplace}
         \chemfig{H-C(-[2]H)(-[6]H)-C(-[2]H)(-[6]H)-O-H}
     \end{subplace}
-    \vadjust{\kern\baselineskip}\\ \null \hfil
-    \sublegend[circ]{\raggedright Fonte de tensão $V$ e dois resistores $R_1$ e $R_2$ ligados em paralelo.} \label{circ:am}
+    \sublegend[circ]{\raggedright Fonte de tensão $V$ e dois resistores $R_1$ e $R_2$ ligados em paralelo.}
+    \label{circ:am}
     \subsrc\me
+    \vadjust{\nobreak}\\[\baselineskip] \null \hfil
     \begin{subplace}
         \begin{circuitikz}[scale=.7]
             \draw
@@ -446,9 +461,10 @@ Ver \ref{tab:pessoas-residentes-em}, \ref{fig1}.
                   -- (2,0);
         \end{circuitikz}
     \end{subplace}
-    \hfil
-    \sublegend[a]{Exemplo} \label{a:exemplo}
+    \sublegend[a]{Exemplo}
+    \label{a:exemplo}
     \subsrc{\cite{package-pseudo}}
+    \hfil
     \begin{subplace}
          \begin{pseudo}[kw,indent-mark]
          for $k = 1$ to $n$ \\+
@@ -458,9 +474,10 @@ Ver \ref{tab:pessoas-residentes-em}, \ref{fig1}.
          return $t$
          \end{pseudo}
     \end{subplace}
-    \vadjust{\kern\baselineskip}\\ \null \hfil
-    \sublegend[d]{Exemplo em 3D} \label{d:exemplo}
+    \sublegend[d]{Exemplo em 3D}
+    \label{d:exemplo}
     \subsrc\me
+    \vadjust{\nobreak}\\[\baselineskip] \null \hfil
     \begin{subplace}
         $$
             \begin{tikzcd}[row sep=1.5em, column sep=2em]
@@ -471,11 +488,12 @@ Ver \ref{tab:pessoas-residentes-em}, \ref{fig1}.
             \end{tikzcd}
         $$
     \end{subplace}
-    \hfil
-    \sublegend[f]{Pássaros} \label{f:pass}
+    \sublegend[f]{Pássaros}
+    \label{f:pass}
     \subsrc{Disponível em: \url{https://pixabay.com/pt/photos/p\%C3\%A1ssaros-penas-asas-ornitologia-9324370/}. Acesso em: 17 jul 2025.}
+    \hfil
     \begin{subplace}
-        \includegraphics[width=.9\linewidth]{birds.jpg}
+        \includegraphics[width=.9\linewidth]{abntexto-birds.jpg}
     \end{subplace}
 \end{multiplace}
 

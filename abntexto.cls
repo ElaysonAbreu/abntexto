@@ -1,8 +1,17 @@
-%! Public Domain Software 2022-2026
-%! 2026-03-04
-%! 1.0
-%! Elayson Abreu
-%! abntexto.classe@gmail.com
+%! File:    abntexto.cls
+%! License: Public Domain Software
+%! Version: 1.1 2026-05-08
+%! Author:  Elayson Abreu 2022--2026
+%! Contact: abntexto.classe@gmail.com
+%!
+%! This work consists of the files
+%!  abntexto.bib, abntexto-exemplo.bib,
+%!  abntexto.cls, abntexto-3-2-1-beta.cls,
+%!  CHANGELOG.md, README.md,
+%!  abntexto-birds.jpg, abntexto.pdf,
+%!  abntexto-exemplo.pdf, abntexto-onehalf-tex.pdf
+%!  abntexto-onehalf-word.tex, abntexto-screenshot.png,
+%!  abntexto.tex, abntexto-exemplo.tex
 
 % \codesection{RECOMENDAÇÕES\label{codesec:rec}}
 
@@ -16,8 +25,8 @@
 % sua distribuição TeX também não é aconselhado, pelo mesmo motivo exposto no
 % parágrafo anterior.
 
-% Copiar arquivos `.sty`, `.cls` etc. para o mesmo diretório do seu documento e
-% modificá-los pode ser útil. Nesse caso, é preciso renomeá-los após as
+% Copiar arquivos `.sty`, `.cls` etc. para o mesmo diretório do seu documento e, talvez,
+% modificá-los (é recomendando fazer alterações no próprio arquivo `.tex` principal, não em arquivos `.sty` ou `.cls`) pode ser útil. Nesse caso, é preciso renomeá-los após as
 % alterações para não haver confusão em relação ao original (principalmente se o
 % arquivo alterado for compartilhado).
 
@@ -43,11 +52,11 @@
 \NeedsTeXFormat{LaTeX2e}
 
 \ProvidesClass{abntexto}%
-    [2026-03-04 1.0 Preparation of works in ABNT standards]
+    [2026-05-08 1.1 Preparation of works in ABNT standards]
 %. \end{code}
 
 % Estas são as únicas dependências do `abntexto`. Os pacotes `enumitem` e
-% `etoolbox` foram adicionados nesta versão (4.0.x-beta). O primeiro permite
+% `etoolbox` foram adicionados na versão 4.0.0-beta. O primeiro permite
 % personalizar listas usando interfaces \emph{key-value}. O segundo oferece
 % macros úteis como `\appto` e `\csletcs` para programadores de macros.
 
@@ -68,32 +77,25 @@
 \def\tnba@error#1{\ClassError{abntexto}{#1}{}}
 %. \end{code}
 
-% Os comandos `\pdfbookmark` e `\phantomsection` pertencem ao `hyperref.sty`.
-% Infelizmente, no entanto, o `\pdfbookmark` insere um destino de \emph{link}
-% sem altura, por isso teremos de parametrizar `\Hy@writebookmark` por
-% meio de `\makeoutline`.
+% Definiremos `\phantomsection` e `\Hy@writebookmark` do `hyperref.sty` e `\NR@gettitle` do `nameref.sty` em termos de `\providecommand`, caso estes pacotes não sejam carregados.
 
-% Parametrizaremos `\NR@gettitle` para suporte ao `nameref.sty`, por meio de
+% Infelizmente, o comando `\pdfbookmark` do `hyperref.sty` insere um destino de \emph{link}
+% sem altura, por isso teremos de usar `\Hy@writebookmark` ao invés.
+
+% Parametrizaremos `\NR@gettitle`, por meio de
 % `\processsectitle`. Infelizmente, o comando `\NR@gettitle` não tem versão
-% não-prefixada. A instrução `\processsectitle` expande para `\NR@gettitle` caso
-% o pacote `nameref` esteja carregado. Do contrário, `\processsectitle` está
-% programado para absorver o argumento. A instrução `\NR@gettitle`, de fato,
+% não-prefixada. A instrução `\NR@gettitle`, de fato,
 % configura `\@currentlabelname` para ser usado em `\nameref`.
 
 % \begin{code}
 \AtBeginDocument{%
-    \@ifpackageloaded{hyperref}{%
-        \def\makeoutline#1#2#3{\Hy@writebookmark{#2}{#3}{\@currentHref}{#1}{toc}}%
-    }{%
-        \def\makeoutline#1#2#3{}%
-        \def\phantomsection{}%
-    }%
-    \@ifpackageloaded{nameref}{%
-        \def\processsectitle#1{\NR@gettitle{#1}}%
-    }{%
-        \def\processsectitle#1{}%
-    }%
+    \providecommand{\phantomsection}{}%
+    \providecommand{\NR@gettitle}[1]{}%
+    \providecommand{\Hy@writebookmark}[5]{}%
 }
+
+\def\makeoutline#1#2#3{\Hy@writebookmark{#2}{#3}{\@currentHref}{#1}{toc}}
+\def\processsectitle#1{\NR@gettitle{#1}}
 %. \end{code}
 
 % O `hyperref.sty` verifica se `\pdfstringdefPreHook` existe. Se sim, ele é
@@ -106,8 +108,8 @@
 
 % \codesection{A MACRO \type{\\eqbox}}
 
-% A macro \`\eqbox` foi adaptada de OpTeX e foi introduzida nesta versão do
-% `abntexto` (4.0.x-beta). São caixas que, ao receberem um mesmo rótulo, vão se
+% A macro \`\eqbox` foi adaptada de OpTeX e foi introduzida na versão 4.0.0-beta do
+% `abntexto`. São caixas que, ao receberem um mesmo rótulo, vão se
 % igualar com a largura da maior caixa após duas compilações \cite{optex}.
 % Exemplo de uso:
 
@@ -180,14 +182,14 @@
                                  Use "l", "r" ou "c"}\starteqboxl
              \fi
         }%
-    \else \tnba@obs@eqbox \box0 \fi
+    \else \tnba@warn@eqbox \box0 \fi
 }
 \def\starteqboxl{\unhbox0\hss}
 \def\starteqboxr{\hss\unhbox0}
 \def\starteqboxc{\hss\unhbox0\hss}
 
-\def\tnba@obs@eqbox{\tnba@warning{Recompile para o cálculo da \string\eqbox}%
-    \global\let\tnba@obs@eqbox=\relax
+\def\tnba@warn@eqbox{\tnba@warning{Recompile para o cálculo da \string\eqbox}%
+    \global\let\tnba@warn@eqbox=\relax
 }
 
 \appto\pdfstringdefPreHook{%
@@ -196,6 +198,8 @@
 
 \def\eqboxsize#1#2{\ifcsname tnba@eqb@#1\endcsname\csname tnba@eqb@#1\endcsname\else#2\fi}
 %. \end{code}
+
+% O aviso `\tnba@warn@eqbox` não pode ser exibido quando há mudança na fonte tipográfica do documento, infelizmente.
 
 % \codesection{FONTE TIPOGRÁFICA}
 
@@ -213,12 +217,13 @@
 %   \documentclass{abntexto}
 %   \usepackage{lmodern}
 %   \definesize\normalsize{17pt}{20pt}{}
+%   \normalsize
 %   \begin{document}
 %       Texto lorem lipsum dolor
 %   \end{document}
 %. \end{xp}
-% O exemplo acima já produz efeito sobre o tamanho de fonte, porque o LaTeX
-% inicializa `\normalsize` durante `\begin{document}`.
+% O exemplo acima, sem `\normalsize`, já produziria efeito sobre o tamanho de fonte, porque o LaTeX
+% inicializa `\normalsize` durante `\begin{document}`, mas `\normalsize` foi inicializado mesmo assim porque alguns comandos ou registros podem precisar do novo valor de `\baselineskip` definido por `\normalsize`.
 
 % \codesubsection{O ponto \TeX\ \emph{versus} o ponto DTP}
 
@@ -237,20 +242,18 @@
 
 % \codesubsection{Definindo conjuntos de tamanho de fonte}
 
-% Até a versão anterior do `abntexto` (3.2.1-beta), o comando `\small` era usado
-% para selecionar o tamanho menor e uniforme conforme a ABNT NBR 10\,520:
+% Até a versão 3.2.1-beta do `abntexto`, o comando `\small` era usado
+% para selecionar o tamanho menor e uniforme conforme a NBR~14\,724:
 % \Enquote{Recomenda-se, quando digitado, a fonte tamanho 12 para todo o
 % trabalho, inclusive capa, excetuando-se citações com mais de três linhas,
 % notas de rodapé, paginação, dados internacionais de catalogação-na-publicação,
 % legendas e fontes das ilustrações e das tabelas, que devem ser em
 % \textit{tamanho menor e uniforme} \cite[p.~10, grifo
-% próprio]{abnt-2024-14724-trabalhos-academicos}.} Nesta versão, 4.0.x-beta, ele
-% será renomeado para `\abntsmall`, de forma a não haver confusão com o
-% significado original do comando `\small` da classe `article`. Por enquanto, o
-% significado de `\small` será igual ao de `\abntsmall` para compatibilidade com
-% documentos antigos.
+% próprio]{abnt-2024-14724-trabalhos-academicos}.}
+% A partir da versão 4.0.0-beta, `\abntsmall`
+% deve ser usado em detrimento de `\small`. O significado de `\small` será igual ao de `\abntsmall` para compatibilidade com documentos antigos.
 
-% O `\setamounts` configura `\<value>amount`s conforme o tamannho de fonte.
+% O `\setamounts` configura `\<valor>amounts` conforme o tamannho de fonte.
 
 % \begin{code}
 \def\hooknormalsize{\setamounts}
@@ -259,7 +262,7 @@
     \dimen4=\f@size pt
     \bigskipamount=\dimen4 plus.33333\dimen4 minus.33333\dimen4
     \medskipamount=.5\dimen4 plus.16666\dimen4 minus.16666\dimen4
-    \smallskipamount=.25\dimen4 plus.08333\dimen4 minus.08333\dimen4
+    \smallskipamount=.25\dimen4 plus.08333\dimen4 minus.08333\dimen4 \relax
 }
 \input{size12.clo}
 \def\definesize#1#2#3#4{\DeclareRobustCommand#1{\@setfontsize{#1}{#2}{#3}#4\relax}}
@@ -271,7 +274,7 @@
 
 % \codesubsection{Espaçamento simples e de 1,5 do Microsoft Word}
 
-% Até a versão anterior (3.2.1-beta), o `abntexto` utilizava a fórmula
+% Até a versão 3.2.1-beta, o `abntexto` utilizava a fórmula
 % $$
 %    `\baselineskip` = <tamanho de fonte> * <fator espaçamento>
 % $$
@@ -289,7 +292,7 @@
 % área de concentração), que devem ser digitados ou datilografados em espaço
 % simples. As referências, ao final do trabalho, devem ser separadas entre si
 % por um espaço simples em branco
-% \cite[][p.~10]{abnt-2024-14724-trabalhos-academicos}.}
+% \cite[p.~10]{abnt-2024-14724-trabalhos-academicos}.}
 
 % Segundo a Microsoft\footnotemark, o espaçamento simples é um pouco menor que o
 % espaçamento 1,15 e o espaçamento 1,5 é um pouco menor que o espaçamento 2.
@@ -298,11 +301,16 @@
 
 % \footnotetext{Extraído da URL: \url{https://www.microsoft.com/en-us/microsoft-365-life-hacks/writing/single-spacing-vs-double-spacing}.}
 
+%! https://web.archive.org/web/20260507135859/https://www.microsoft.com/en-us/microsoft-365-life-hacks/writing/single-spacing-vs-double-spacing
+
 % Por enquanto, deixaremos o Word em segundo plano e falaremos sobre outro
 % programa de processamento de texto: Adobe InDesign. De acordo com o
 % ex-cientista principal da Adobe, Dov Isaacs, a fórmula usada no programa Adobe
 % InDesign é\footnote{Extraído da URL:
 % \url{https://community.adobe.com/t5/indesign-discussions/line-spacing-in-indesign/m-p/11586306?profile.language=pt}.}:
+%!
+%! https://web.archive.org/web/20260507135523/https://community.adobe.com/questions-671/line-spacing-in-indesign-863252?postid=3332310#post3332310
+%!
 % $$
 %    `\baselineskip` = <tamanho> * <fator simples> * <fator espaçamento>
 % $$
@@ -320,9 +328,9 @@
 %          \src{\me}
 %          \label{scr:zere}
 %          \begin{place}
-%             \fbox{\includegraphics{screenshot1.png}}
+%             \fbox{\includegraphics{abntexto-screenshot.png}}
 %          \end{place}
-%    \item Aplicar o espaçamento 1,5 e salvar o arquivo em PDF sob o nome `onehalf-word.pdf`.
+%    \item Aplicar o espaçamento 1,5 e salvar o arquivo em PDF sob o nome\\ `abntexto-onehalf-word.pdf`.
 % \end{topics}
 
 % Em seguida, ao realizar testes empíricos com auxílio do \ref{cd:emp}, o valor
@@ -349,7 +357,7 @@
 
 % Logo depois, foi feita a divisão $20,7\hbox{pt} \div 12\hbox{pt} \div
 % 1,5\hbox{pt}$ que revela 1,15 como sendo o fator simples. Em seguida, o
-% arquivo foi compilado e salvo sob o nome `onehalf-tex.pdf`. Todavia, não
+% arquivo foi compilado e salvo sob o nome `abntexto-onehalf-tex.pdf`. Todavia, não
 % podemos garantir que esse fator, ou a fórmula em questão, são os mesmos em
 % todas as versões passadas/futuras do Word e tampouco os mesmos em todos os
 % tipos e tamanhos de fonte.
@@ -368,13 +376,13 @@
 %   \def\.{\kern20.7bp \kern-.4pt % Correção da largura da linha de base.
 %          \hrule width8cm height.4pt}
 %   \vbox to0pt{\kern-6bp \.\.\.\.\vss}
-%   \fbox{\vbox to3cm{\hsize=3.5cm\includegraphics[trim=70 690 420 72]{onehalf-tex.pdf}\vss}}%
-%   \fbox{\vbox to3cm{\hsize=3.5cm\includegraphics[trim=83 690 420 72]{onehalf-word.pdf}\vss}}
+%   \fbox{\vbox to3cm{\hsize=3.5cm\includegraphics[trim=70 690 420 72]{abntexto-onehalf-tex.pdf}\vss}}%
+%   \fbox{\vbox to3cm{\hsize=3.5cm\includegraphics[trim=83 690 420 72]{abntexto-onehalf-word.pdf}\vss}}
 %   \end{document}
 %. \end{xp}
 % \end{place}
 
-% \legend{output}{Arquivo \type{onehalf-tex.pdf} à esquerda; \type{onehalf-word.pdf} à direita}
+% \legend{output}{Arquivo \type{abntexto-onehalf-tex.pdf} à esquerda; \type{abntexto-onehalf-word.pdf} à direita}
 % \src{\me}
 % \label{output:tex-word}
 % \begin{place}\vbox\bgroup\hsize=7.5cm
@@ -382,8 +390,8 @@
 %   \def\.{\kern20.7bp \kern-.4pt
 %          \hrule width8cm height.4pt}
 %   \vbox to0pt{\kern-6bp \.\.\.\.\vss}
-%   \fbox{\vbox to3cm{\hsize=3.5cm\includegraphics[trim=70 690 420 72]{onehalf-tex.pdf}\vss}}%
-%   \fbox{\vbox to3cm{\hsize=3.5cm\includegraphics[trim=83 690 420 72]{onehalf-word.pdf}\vss}}
+%   \fbox{\vbox to3cm{\hsize=3.5cm\includegraphics[trim=70 690 420 72]{abntexto-onehalf-tex.pdf}\vss}}%
+%   \fbox{\vbox to3cm{\hsize=3.5cm\includegraphics[trim=83 690 420 72]{abntexto-onehalf-word.pdf}\vss}}
 % \egroup
 % \end{place}
 
@@ -416,7 +424,7 @@
 % $$
 % Que corresponde à aplicação da fórmula~(1).
 
-% A \textcite{abnt-2024-14724-trabalhos-academicos} não recomenda espaçamento
+% A NBR~14\,724 não recomenda espaçamento
 % duplo em nenhum momento. Portanto, `\doublesp` está obsoleto a partir desta
 % versão do `abntexto`. Por fim, a antiga fórmula usada por `\spacing` também
 % está obsoleta.
@@ -439,17 +447,15 @@
 
 % \codesection{\emph{LAYOUT}}
 
-% Nas linhas abaixo estão as definições de \`\onesidelayout`, \`\twosidelayout`
-% e \`\eletroniclayout`.
+% Nas linhas abaixo estão as definições de \`\onesidelayout`, \`\twosidelayout`,\\
+% `\eletroniclayout` e \`\useeletroniclayout`.
 
-% É importante notar que, cada chamada de `\newgeometry`, reseta, de `\geometry`
+% É importante notar que cada chamada de `\newgeometry`, reseta\footnote{Este manual erroneamente afirmava que \type{\\newgeometry} resetava \type{\\parindent}.}, de `\geometry`
 % e `\usepackage`, os valores anteriores de chaves não relacionadas com o
 % tamanho da folha tais como `left`, `top`, `right` e `bottom`, entre outras
 % exigindo que sejam reafirmadas em cada chamada de `\newgeometry`\footnote{Além
 % disso, \type{\\newgeometry} também reseta as opções do \type{\\newgeometry}
-% anterior, apesar disso não estar explicitado no manual.}.
-
-% Este manual erroneamente afirmava que `\newgeometry` resetava `\parindent`.
+% anterior, apesar disso não estar explicitado no manual (v5.9).}.
 
 % \begin{code}
 \geometry{a4paper,onecolumn}
@@ -480,6 +486,10 @@
         right   = 2.5cm,
         bottom  = 2cm
     }%
+}
+\def\useeletroniclayout{%
+    \let\onesidelayout=\eletroniclayout
+    \let\twosidelayout=\eletroniclayout
 }
 %. \end{code}
 
@@ -515,7 +525,7 @@
 \AtBeginDocument{\pretextual}
 %. \end{code}
 
-% A \textcite{abnt-2024-14724-trabalhos-academicos} diz que \enquote{para
+% A NBR~14\,724 da \textcite[p.~11]{abnt-2024-14724-trabalhos-academicos} diz que \enquote{para
 % trabalhos digitados ou datilografados somente no anverso, todas as folhas, a
 % partir da folha de rosto, devem ser contadas sequencialmente, considerando
 % somente o anverso. [\dots]}. Todavia, o `abntexto` ainda não tem suporte
@@ -532,13 +542,13 @@
 %   \def\hookextline{\emergencystretch=2.5em\hbadness=10000\relax}
 %. \end{xp}
 
-% A macro `\noprotrusion` foi definida no LaTeX e serve para desabilidar
+% A macro `\noprotrusion` foi definida no LaTeX e serve para desabilitar
 % protrusão (\emph{\selectlanguage{english}hanging punctuation}) em entradas do
 % Sumário, que pode ser produzida, por exemplo, pelo `microtype.sty`. Se a sua
 % versão do LaTeX não o possui, defina-o:
 
 % \begin{xp}
-%   \def\noprotrusion{\leavevmode\kern-1pt\kern1pt}
+%   \protected\def\noprotrusion{\leavevmode\kern-1pt\kern1pt}
 %. \end{xp}
 
 % \begin{code}
@@ -725,13 +735,13 @@
 % originais, explicitado nos casos abaixo:
 
 % \begin{topics}
-%   \item $`\nobreak\bottitle{<skipA>}` + `\toptitle{<penaltyA>}{<skipB>}`$
+%   \item $`\nobreak\bottitle{<skipA>}` + `\toptitle{<penaltyA>}{<skipB>}` =$
 %         $$\offinterlineskip\halign{$#$\cr
 %           `\nobreak\vskip<skipB>`;
 %         \cr}$$
-%   \item $<skipA> + `\toptitle{<penaltyB>}{<skipB>}`$
+%   \item $<skipA> + `\toptitle{<penaltyB>}{<skipB>}` =$
 %         $$\offinterlineskip\halign{$#$\cr
-%           <penaltyB>`\vskip` \mathop{\fam0 maior} (<skipA>, <skipB>).
+%           <penaltyB>`\vskip` \mathop{\operator@font maior} (<skipA>, <skipB>).
 %         \cr}$$
 % \end{topics}
 
@@ -753,13 +763,13 @@
 % \emph{designs} de `\printchapter` e `\printpart` não foram baseados no estilo
 % ABNT, mas copiados das classes `book` e `article`, respectivamente.
 
-% A \textcite{abnt-2024-14724-trabalhos-academicos} recomenda que haja um
-% caractere de Espaço entre o contador e o título das seções. No entanto, esta
+% A NBR~14\,724 recomenda que haja um
+% caractere de Espaço entre o contador e o título das seções \textcite{abnt-2024-14724-trabalhos-academicos}. No entanto, esta
 % classe optou pelo uso de `\quad`, mas o escritor pode redefinir
 % `\printsection` substituindo `\quad` por Espaço usando o comando `\patchcmd`
 % do `etoolbox.sty` da seguinte forma:
-
 % \begin{xp}
+%   \def\toclabel#1{#1\space}
 %   \patchcmd{\printsection}{\quad}{\space}{}{}
 %   \patchcmd{\printsubsection}{\quad}{\space}{}{}
 %   ...
@@ -816,7 +826,7 @@
 }
 %. \end{code}
 
-% Aqui estão \`\nonum` e \`\notoc`. Os comandos secionais `\part`, `\chapter` e `\section` têm âncoras em suas definições que servem para instruções de quebra de página.
+% Os comandos secionais `\part`, `\chapter` e `\section` têm as âncoras \`\hookpart`, \`\hookchapter` e \`\hooksection` em suas definições que servem para instruções de quebra de página. Aqui estão definidos  \`\nonum` e \`\notoc`.
 
 % \begin{code}
 \def\hookpart{\clearpage}
@@ -908,7 +918,7 @@
 % É mais provável que o usuário queira redefinir comandos como `\printsection`,
 % ao invés de seus invólucros maiores, nesse caso, `\section`.
 
-% Nesta classe, não há suporte para a sintaxe `\section*[<título alternativo>]`.
+% Nesta classe, não há suporte para a sintaxe `\section*` ou `\section[<título alternativo>]`.
 % O uso de `*` foi substituído por nomenclaturas de maior peso semântico:
 % `\nonum` e `\notoc`\footnotemark, porque, no LaTeX, o asterisco (`*`) não
 % carrega valor semântico suficiente. Por exemplo, em `\newcommand`, `\section`
@@ -923,7 +933,7 @@
 
 % A sequência de controle `\trytextual` será prefixada em `\section`, `\chapter`
 % e iniciará o estilo de página `\textual` automaticamente. O usuário final pode
-% desativar essa funcionalidade digitando `\let\trytextual=\relax` no preâmbulo
+% desativar essa funcionalidade digitando `\disableautotextual` no preâmbulo
 % e inserindo `\textual` manualmente no documento.
 
 % O `\savedsectitle` será usado em `\processsectitle` que expande para
@@ -952,6 +962,8 @@
 
 % \begin{code}
 \def\trytextual{\ifnonum \else \textual \let\trytextual=\relax \fi}
+\def\disableautotextual{\let\trytextual=\relax}
+\@onlypreamble \disableautotextual
 \def\predictlbl#1#2#3#4{#1{#2#3{#4}}}
 \def\savedsectitle{}
 
@@ -989,7 +1001,11 @@
 \def\insubparagraph#1{\def\savedsectitle{#1}\printsubparagraph{#1}}
 %. \end{code}
 
-% Aqui estão definidos \`\usechapters` e \`\useparts`.
+% Aqui estão definidos \`\usechapters` e \`\useparts`. Talvez a linha
+% \begin{xp}
+%   \counterwithin{section}{chapter}
+% \end{xp}
+% não seja necessária porque `\def\thesection{\thechapter .\arabic{section}}` está presente.
 
 % \begin{code}
 \newif\ifusechapters
@@ -1037,8 +1053,8 @@
 % \codesubsection{Cabeçalhos e rodapés}
 
 % A seguir, temos os comandos que podem ser usados para criar linhas de
-% cabeçalho e rodapé. Eles foram renomeados nessa versão, 4.0.x-beta, e, até a
-% versão anterior, se chamavam `\markchapter`, `\marksection` e
+% cabeçalho e rodapé. Eles foram renomeados na versão 4.0.0-beta, e, até a
+% versão 3.2.1-beta, se chamavam `\markchapter`, `\marksection` e
 % `\marksubsection`.
 
 % \begin{code}
@@ -1058,10 +1074,10 @@
 % \begin{xp}
 %   \makeatletter
 %   \appto\textual{
-%      \def\@oddhead {\abntsmall \firstmarks0\hfil\thepage}
-%      \def\@evenhead{\abntsmall \thepage\hfil\botmarks1}
-%      \def\sectionmark   #1{\marks0{Seção \thesection: \unexpanded{#1}}}
-%      \def\subsectionmark#1{\marks1{Subseção \thesubsection: \unexpanded{#1}}}
+%    \def\@oddhead {\abntsmall \firstmarks0\hfil\thepage}
+%    \def\@evenhead{\abntsmall \thepage\hfil\botmarks1}
+%    \def\sectionmark   #1{\marks0{Seção \thesection: \unexpanded{#1}}\marks1{}}
+%    \def\subsectionmark#1{\marks1{Subseção \thesubsection: \unexpanded{#1}}}
 %   }
 %   \makeatother
 %. \end{xp}
@@ -1071,11 +1087,13 @@
 % disso, se o escritor deseja adicionar uma linha horizontal embaixo dos
 % cabeçalhos, basta acrescentar mais duas linhas no fim do `\appto` anterior:
 % \begin{xp}
+%   \makeatletter
 %   \appto\textual{% \preto = prepend to
 %      % ...
 %      \preto\@oddhead {\lower4pt\rlap{\vrule width\hsize height.4pt}}
 %      \preto\@evenhead{\lower4pt\rlap{\vrule width\hsize height.4pt}}
 %    }
+%   \makeatother
 %. \end{xp}
 % O resultado é semelhante ao mostrado abaixo:
 
@@ -1084,8 +1102,22 @@
 
 % Todavia, é importante notar que a rotina de saída do LaTeX não possui suporte
 % para o uso direto de
-% `\topmark/\topmarks`\footnote{\url{https://tex.stackexchange.com/questions/883/why-do-floats-change-the-mark?noredirect=1&lq=1}}
+% `\topmark/\topmarks`\footnote{\url{https://tex.stackexchange.com/questions/883/why-do-floats-change-the-mark?noredirect=1&lq=1}.}
 % \cite{source2e}.
+
+% Se `\useeletroniclayout` está ativado pode ser conveniente posicionar a numeração de página à direita em todas as páginas:
+%\begin{xp}
+%   \makeatletter
+%   \appto\textual{%
+%      ...
+%      \def\@oddhead {\abntsmall \firstmarks0\hfil\thepage}
+%      \def\@evenhead{\abntsmall \botmarks1\hfil\thepage}
+%      ...
+%   }
+%   \makeatother
+%   \patchcmd{\eletroniclayout}{false}{true}{}{}
+%   \useeletroniclayout % Deve vir depois da linha anterior.
+%\end{xp}
 
 % \codesubsection{Ambiente \type{corrprint}}
 
@@ -1267,7 +1299,7 @@
 % Em virtude disso, o pacote `csquotes` foi carregado pela classe. Ele fornece o
 % comando `\enquote` para digitar aspas que é capaz de respeitar o contexto
 % idiomático. Exemplos: `\enquote{lipsum}` produz \enquote{lipsum} se seu idioma
-% padrão, definido em `babel`, for `brazil`;
+% padrão, definido em `babel`, for `brazilian`;
 % `{\selectlanguage{german}\enquote{lipsum}}` produz
 % {\selectlanguage{german}\enquote{lipsum}} se o idioma secundário `german` foi
 % previamente carregado. Além disso, `\enquote` também é sensível ao
@@ -1298,8 +1330,8 @@
 
 % As linhas que seguem criam o ambiente \`topics` usando instruções do
 % `enumitem.sty` que é inicializado nesta classe \cite{enumitem-package}. Com
-% esse ambiente o autor pode escrever alíneas conforme a NBR~6024:
-% \cite{abnt-2012-6024-numeracao-progressiva-das}.
+% esse ambiente o autor pode escrever alíneas conforme a NBR~6024
+% \cite{abnt-2012-6024-numeracao-progressiva-das}:
 
 % \begin{code}
 \newlist{topics}{enumerate}{2}
@@ -1329,7 +1361,7 @@
 % documento. No entanto, essa funcionalidade era limitada e não fornecia rótulo
 % para letras maiúsculas ou uma versão para plural e recursos mais extensivos.
 % Por causa disso, o `abntexto` resolveu incumbir essa tarefa a pacotes externos
-% que desenvolvem o sistema de referência-cruzada tais como o `cleveref.sty` e o
+% que desenvolvem o sistema de referência-cruzada tais como o `cleveref.sty` (ver \ref{app:cleveref}) e o
 % `zref.sty`.
 
 % \begin{code}
@@ -1348,8 +1380,8 @@
     \tnba@new@definelegendplace{#1}{#2}{#4}}
 %. \end{code}
 
-% A nova definição de `\definelegendplace`, incorporada nesta versão
-% (4.0.x-beta), tem a sintaxe:
+% A nova definição de `\definelegendplace`, incorporada na versão
+% 4.0.0-beta, tem a sintaxe:
 % \begin{xp}
 %   \definelegendplace{<tipo>}{<nome>}{<extensão>}
 %. \end{xp}
@@ -1369,12 +1401,11 @@
 %   \def\logrextfont{\maintocfont}
 %   \def\makelogr{\@starttoc{logr}\inittocfirst}
 %. \end{xp}
-% É importante saber que `\definelegendplace`, a partir desta versão, não cria
-% mais os comandos `#1name` e `#3label`. Ao invés disso, ele verifica se
-% `#1name` existe. Se sim, `\definelegendplace` utiliza `#1name` na definição de
-% `\<ext>label`, do contrário, este será definido com a designação dada no
-% segundo argumento de `\definelegendplace`, como foi o caso no exemplo acima.
-% Quanto a função de `#3label`, foi deixada para `\legendlabel`.
+% É importante saber que `\definelegendplace`, a partir da versão 4.0.0-beta, não cria
+% mais o comando `\<tipo>name`. Ao invés disso, ele verifica se
+% `\<tipo>name` existe. Se sim, a instrução `\def\ID<tipo>{\<tipo>name}` é chamada, do contrário, `\def\ID<tipo>{<nome>}` é chamada, como foi o caso no exemplo acima.
+
+% O `\<ext>label` também não é mais criado. Sua função foi deixada para `\legendlabel`.
 
 % \begin{code}
 \def\lastfloattype{0}
@@ -1405,7 +1436,7 @@
     \csdef{#3labelbox}{\lowercase{\eqbox{lo:#3}}}%
     \appto\pdfstringdefPreHook{%
         \csdef{#3labelbox}##1{##1}%
-    }
+    }%
     \csdef{#3extfont}{\maintocfont}%
     \csdef{make#3}{\@starttoc{#3}\inittocfirst}%
     \protected\csedef{tnba@obs@#3label}{%
@@ -1445,7 +1476,7 @@
 % \codesubsection{\type{\\legend} e \type{\\label}}
 
 % Em \`\legend``{<tipo>}{<título>}`, <tipo> e <título> são armazenados em
-% `\savedplace` e `\savedlegend`, respectivamente. Por fim, com auxílio de
+% `\savedplace` e `\savedlegend`, respectivamente. Em seguida, com auxílio de
 % `\makerefcounter`, o contador <tipo> é avançado, ao mesmo tempo em que
 % `\@currentlabel` e análogos são definidos. Por fim, \`\src` armazena o
 % argumento em `\savedsrc`.
@@ -1456,6 +1487,8 @@
 % salvar seu argumento em `\savedlbl` para ser inserido posteriormente em
 % `\targetlegend` que será lido no modo horizontal. O significado original de
 % `\label` será restaurado ao fim do ambiente `place`.
+
+% Não podemos simplesmente substituir `\resetORIlabel` por `\gresetORIlabel`, porque `\label` só deve ser resetado depois de `\buildplace`.
 
 % \begin{code}
 \newdimen\savedplacewidth
@@ -1469,6 +1502,7 @@
     \ignorespaces % Caso multiplace encontre-se dentro de place.
 }
 \def\src#1{\def\savedsrc{#1}\ignorespaces}
+\long\def\abntextonote#1{\def\savedabntextonote{#1}\ignorespaces}
 \def\resetORIlabel{\ifx\ORIlabel\undefined \else
     \let\label=\ORIlabel
     \let\ORIlabel=\undefined \fi
@@ -1485,6 +1519,7 @@
 \def\legendlabel{\currentlegendID~\thelegend~---~}
 \def\legendmaxwidth{.7\linewidth}
 \def\srclabel{Fonte:~}
+\def\abntextonotelabel{Nota:~}
 %. \end{code}
 
 % O ambiente \`place` tem a sintaxe `\begin{place}[<arg>]<conteúdo>\end{place}`.
@@ -1494,10 +1529,10 @@
 % `here`\footnote{Semelhante ao especificador `H` do pacote `float`
 % \cite{float-package}.}, definido nesta classe, ou os parâmetros de objeto
 % flutuante do LaTeX: \expandafter`\excl`, `t`, `p`, `b` ou `h`. Se <arg> não
-% for especificado, \`\placepos` será usado.
+% for especificado, `\placepos` será usado.
 
-% O usuário final pode especificar o posicionamento de todos os ambientes
-% `place` digitando, no preâmbulo, `\def\placepos{tbp}`, por exemplo.
+% Definição de \`\setplacepos`. O usuário final pode especificar o posicionamento de todos os ambientes
+% `place` e `multiplace` digitando, no preâmbulo, `\setplacepos{tbp}` ou `\setplacepos{here}`, por exemplo.
 
 % O <arg> será processado em `\processplacearg` e definirá `\initplace` e
 % `\finishplace` que vão inserir \`\aboveplace` e \`\belowplace` se <arg> for
@@ -1505,23 +1540,25 @@
 % finalizarão o modo flutuante, respectivamente, e <arg> será processado no
 % ambiente `@float` do LaTeX. Depois, a informação da largura da caixa é
 % guardada em `\savedplacewidth` para uso posterior. Em seguida, `\buildplace`
-% entra em ação e expõe três componentes:
+% entra em ação e expõe quatro componentes:
 % \begin{topics}
-%     \item `\printlegendbox`: é nada mais que uma `\vtop` centralizada na página
-%           por meio da primitiva `\hfil`. A largura da `\vtop` independe da largura do
-%           <conteúdo>. Se a largura do título e do rótulo juntos é maior que
-%           `\legendmaxwidth`, a `\vtop` terá largura igual a `\legendmaxwidth`, do
-%           contrário, terá largura igual ao do título e do rótulo juntos;
-
+%    \item `\printlegendbox`: é nada mais que uma `\vtop` centralizada na página
+%          por meio da primitiva `\hfil`. A largura da `\vtop` independe da largura do
+%          <conteúdo>. Se a largura do título e do rótulo juntos é maior que
+%          `\legendmaxwidth`, a `\vtop` terá largura igual a `\legendmaxwidth`, do
+%          contrário, terá largura igual ao do título e do rótulo juntos;
 %    \item `\printplacebox`: é responsável por desempacotar a caixa por meio da
 %          primitiva `\unhbox`. O alinhamento é, mais uma vez, centralizado por meio
 %          de `\hfil`;
-
 %    \item `\printsrcbox`: está programado para desenhar uma `\vbox` de largura
-%          `\savedplacewidth` centralizada com `\hfil`. \end{topics}
+%          `\savedplacewidth` centralizada com `\hfil`.
+%    \item `\printnotebox`: está programado para desenhar uma `\vbox` de largura
+%          `\savedplacewidth` centralizada com `\hfil`.
+% \end{topics}
 
 % \begin{code}
-\def\placepos{here}
+\def\setplacepos#1{\def\placepos{#1}}
+\setplacepos{here}
 \def\aboveplace{\baselineskip}
 \def\belowplace{\baselineskip}
 
@@ -1578,6 +1615,7 @@
     \fi
     \printplacebox
     \printsrcbox
+    \ifx\savedabntextonote\empty \else \printnotebox \fi
     \finishplace
 }
 \def\printlegendbox{\hfil \vtop{%
@@ -1589,19 +1627,33 @@
     \singlesp \hangfrom{\legendlabel}\savedlegend \strut
 }}
 \def\printplacebox{\par\nointerlineskip \nobreak\vskip\medskipamount \hfil \unhbox0\relax}
+%. \end{code}
+
+% A largura de `\printsrcbox` é igual a `\savedplacewidth`, assim a fonte se alinha com a borda esquerda do objeto a ser legendado.
+
+% \begin{code}
 \def\printsrcbox{\par\nointerlineskip \nobreak\vskip\medskipamount
     \hfil \vbox{\hsize=\savedplacewidth
         \raggedright\abntsmall\singlesp
         \hangfrom\srclabel \savedsrc \strut
 }}
+\def\printnotebox{\par\nointerlineskip \nobreak\vskip\medskipamount
+    \hfil \vbox{\hsize=\savedplacewidth
+        \raggedright\abntsmall\singlesp
+        \setbox0=\hbox{\abntextonotelabel}%
+        \leftskip=\wd0 \hskip-\wd0
+        \abntextonotelabel \savedabntextonote \strut
+}}
 
 \def\savedlegend{}
 \def\savedplace{}
 \def\savedsrc{}
+\def\savedabntextonote{}
 \def\resetplace{%
     \global\let\savedplace=\empty
     \global\let\savedlegend=\empty
     \global\let\savedsrc=\empty
+    \global\let\savedabntextonote=\empty
 }
 %. \end{code}
 
@@ -1637,7 +1689,7 @@
 %. \end{code}
 
 % Neste ponto, criaremos o ambiente `multiplace`, de sintaxe
-% `\begin{multiplace}[<arg>]`. Onde <arg> são parâmetros de objeto flutuante ou
+% `\begin{multiplace}[<arg>]` onde <arg> são parâmetros de objeto flutuante ou
 % `here`. Esse ambiente, ao contrário de `place`, não armazena seu conteúdo numa
 % `\setbox`. Ao invés, as caixas são armazenadas e desempacotadas, de fato, no
 % ambiente \`subplace`, de sintaxe `\begin{subplace}[<arg>]`. Este basicamente
@@ -1646,13 +1698,20 @@
 % caixa, por exemplo: `\begin{subplace}[4cm]`. Se <arg> não for especificado,
 % seu valor padrão será `0.45\linewidth`.
 
-% O \`\sublegend` salva o conteúdo do seu argumento em `\savedsublegend`, avança
-% o contador `subplace`, define `\@currentlabel` e afins, e, por fim, remove
+% Note que, diferentemente do ambiente `place`, `multiplace` não é capaz de assimilar a largura do conjunto de objetos em questão, por isso `\savedplacewidth` precisa ter o valor fixo de `\hsize`.
+
+% O \`\sublegend` expande para `\normalsublegend` ou `\alternativesublegend`.
+
+% O `\normalsublegend` salva o conteúdo do seu argumento em `\savedsublegend`, avança
+% o contador `subplace`, redefine `\label`, e, por fim, remove
 % espaços espúrios por meio de `\ignorespaces`, porque `\sublegend` será lido no
 % modo horizontal. O `\savedsublegend` será usado posteriormente em
-% `\buildsubplace`.
+% `\buildsubplace`. Já `\alternativesublegend`, define `\savedplace` para ser usado em `\currentlegendID`, define `\savedsublegend`, redefine a âncora `\hooktargetlegend` (fixada em `\targetlegend`), redefine `\legendlabel`, substituindo a numeração (a), (b) etc. por Tabela 1 ---, Tabela 2 --- etc., redefine `\label` e, por fim, `\ignorespaces`.
 
 % O \`\subsrc` salva o conteúdo em `\savedsubsrc` para ser usado posteriormente
+% em `\buildsubplace`.
+
+% O \`\subnote` salva o conteúdo em `\savedsubnote` para ser usado posteriormente
 % em `\buildsubplace`.
 
 % \begin{code}
@@ -1669,16 +1728,21 @@
     \ignorespaces
 }
 \def\alternativesublegend[#1]#2{%
-    \legend{#1}{}\stepcounter{subplace}%
+    \def\savedplace{#1}\def\savedsublegend{#2}%
     \def\hooktargetlegend{%
         \ifcsname tnba@sleg@#1\endcsname \else
             \refstepcounter{#1}\csdef{tnba@sleg@#1}{}%
         \fi
     }%
     \def\legendlabel{\currentlegendID~\thelegend~---~}%
-    \normalsublegend{#2}\ignorespaces
+    \ifx\ORIlabel\undefined
+        \let\ORIlabel=\label
+        \def\label##1{\def\savedlbl{##1}\ignorespaces}%
+    \fi
+    \ignorespaces
 }
 \def\subsrc#1{\def\savedsubsrc{#1}\ignorespaces}
+\long\def\subnote#1{\def\savedsubnote{#1}\ignorespaces}
 \def\sublegendlabel{(\alph{subplace})~}
 \def\sublegendmaxwidth{\linewidth}
 
@@ -1724,13 +1788,14 @@
     \hsize=#1\relax \linewidth=\hsize
     \let\savedlegend=\savedsublegend
     \let\savedsrc=\savedsubsrc
+    \let\savedabntextonote=\savedsubnote
     \setbox0=\hbox\bgroup \resetORIlabel
     \ignorespaces
 }{%
     \unskip \egroup
     \savedplacewidth=\wd0
     \buildsubplace
-    \resetsubplace
+    \resetsubplace \gresetORIlabel
     \ignorespacesafterend
     \endgroup
 }
@@ -1741,28 +1806,31 @@
     \fi
     \printplacebox
     \printsrcbox
+    \ifx\savedsubnote\empty \else \printnotebox \fi
     \finishplace
 }}
 
 \def\savedsublegend{}
 \def\savedsubplace{}
 \def\savedsubsrc{}
+\def\savedsubnote{}
 \def\resetsubplace{%
     \global\let\savedsubplace=\empty
     \global\let\savedsublegend=\empty
     \global\let\savedsubsrc=\empty
+    \global\let\savedsubnote=\empty
 }
 %. \end{code}
 
 % \codesection{NOTAS DE RODAPÉ}
 
-% As próximas linhas de código seguem a recomendação: \Enquote{As notas devem
+% As próximas linhas de código seguem a recomendação da NBR~14\,724: \Enquote{As notas de rodapé devem
 % ser digitadas ou datilografadas dentro das margens, ficando separadas do texto
 % por um espaço simples de entre as linhas e por filete de 5 cm, a partir da
 % margem esquerda. Devem ser alinhadas, a partir da segunda linha da mesma nota,
 % abaixo da primeira letra da primeira palavra, de forma a destacar o expoente,
 % sem espaço entre elas e com fonte menor
-% \cite{abnt-2024-14724-trabalhos-academicos}.}.
+% \cite[p.~10]{abnt-2024-14724-trabalhos-academicos}.}.
 
 % \begin{code}
 \def\@makefntext#1{\hangfrom{\@makefnmark\kern2pt}\abntsmall\singlesp #1}
@@ -1783,6 +1851,7 @@
 % Demonstração:
 % \begin{xp}[gobble=1]
 %\def\Centro{\noindent\hfil}
+%\def\Direita{\noindent\hfill}
 %\def\icardWidth{7cm}
 %\def\icardHeight{4.2cm}
 %\def\icardBorder{5pt}
@@ -1801,14 +1870,18 @@
 %
 %    Tipo de trabalho --- Universidade
 %
-%    1. Palavra-chave A. 2. Palavra-chave B. I Título.
+%    1. Palavra-chave A.
+%    2. Palavra-chave B.
+%    I Título.
 %
-%    \hfill CDU 4321
+%    \Direita CDU 4321
 %\end{indexcard}
 %. \end{xp}
 % Cujo resultado é:
 
+% \begingroup
 % \def\Centro{\noindent\hfil}
+% \def\Direita{\noindent\hfill}
 % \def\icardWidth{8cm}
 % \def\icardHeight{5.2cm}
 % \def\icardBorder{5pt}
@@ -1827,17 +1900,88 @@
 %
 %    Tipo de trabalho --- Universidade
 %
-%    1. Palavra-chave A. 2. Palavra-chave B. I Título.
+%    1. Palavra-chave A.
+%    2. Palavra-chave B.
+%    I Título.
 %
-%    \hfill CDU 4321
+%    \Direita CDU 4321
 % \end{indexcard}
+% \endgroup
 
 % No exemplo acima, usamos a instrução \`\icardPrintGrid` para desenhar quatro
 % linhas que delimitam as margens internas da estrutura, em outras palavras, uma
 % grade. Elas são úteis para verificar se o texto não ultrapassou as margens o
 % que, de fato, aconteceu: note que CDU 4321 ultrapassou a margem inferior.
 % Felizmente, podemos resolver esse problema dando um valor maior para
-% `\icardWidth`, `\icardHeight` ou ambos. Segue-se a implementação:
+% `\icardWidth`, `\icardHeight` ou ambos.
+
+% Se você precisa de um \emph{design} sem as linhas esquerda e direita, remova-as de `\icardLeft` e `\icardRight`, zere `\icardBorderLeft` e `\icardBorderRight`:
+
+% \begin{xp}[gobble=1]
+%\def\Centro{\noindent\hfil}
+%\def\Direita{\noindent\hfill}
+%\def\icardWidth{8cm}
+%\def\icardHeight{5.2cm}
+%\def\icardPadding{6pt}
+%\def\icardBorder{2pt}
+%\def\icardBorderLeft{0pt}
+%\def\icardBorderRight{0pt}
+%\def\icardLeft{\hbox\bgroup \icardGridLeft}
+%\def\icardRight{\icardGridRight \egroup}
+%{\centering Ficha catalográfica da biblioteca com dados \\
+%            informados pelo próprio autor.\par}
+%\Centro
+%\begin{indexcard}
+%   Sobrenome, Autor, Ano.
+%   Título: subtítulo / Autor. Ano.
+%
+%   Orientador: Nome
+%
+%   Coorientador: Nome
+%
+%   Tipo de trabalho --- Universidade
+%
+%   1. Palavra-chave A.
+%   2. Palavra-chave B.
+%   I Título.
+%
+%   \Direita CDU 4321
+%\end{indexcard}
+%. \end{xp}
+
+% \begingroup
+% \def\Centro{\noindent\hfil}
+% \def\Direita{\noindent\hfill}
+% \def\icardWidth{8cm}
+% \def\icardHeight{5.2cm}
+% \def\icardPadding{6pt}
+% \def\icardBorder{2pt}
+% \def\icardBorderLeft{0pt}
+% \def\icardBorderRight{0pt}
+% \def\icardLeft{\hbox\bgroup \icardGridLeft}
+% \def\icardRight{\icardGridRight \egroup}
+% {\centering Ficha catalográfica da biblioteca com dados \\
+%             informados pelo próprio autor.\par}
+% \Centro
+% \begin{indexcard}
+%    Sobrenome, Autor, Ano.
+%    Título: subtítulo / Autor. Ano.
+%
+%    Orientador: Nome
+%
+%    Coorientador: Nome
+%
+%    Tipo de trabalho --- Universidade
+%
+%    1. Palavra-chave A.
+%    2. Palavra-chave B.
+%    I Título.
+%
+%    \Direita CDU 4321
+% \end{indexcard}
+% \endgroup
+
+% Segue-se a implementação:
 
 % \begin{code}
 \def\icardLeft{\hbox\bgroup \icardGridLeft\vrule width\icardBorderLeft}
@@ -1922,21 +2066,25 @@
 
 % No Brasil e em outro lugares a vírgula é um separador decimal, portanto
 % `$1,2$` deve produzir um resultado diferente de `$1, 2$`, por exemplo. As
-% linhas abaixo são uma cópia da implementação do pacote `icomma`
-% \cite{icomma-package}.
+% linhas abaixo são uma cópia da implementação do pacote `icomma` \cite{icomma-package}.
 
 % \begin{code}
-{\catcode`,=13 \gdef,{\futurelet\@let@token\tnba@smartcomma}}
 \def\tnba@smartcomma{%
     \ifx\@let@token\@sptoken \else
     \ifx\@let@token\space    \else \mathord \fi\fi
     \tnba@mathcomma
 }
-\AtBeginDocument{%
+{\catcode`,=13 \gdef\abntextodecimalcomma{%
+    \def,{\futurelet\@let@token\tnba@smartcomma}%
     \mathchardef\tnba@mathcomma=\mathcode`\,%
     \mathcode`\,="8000
-}
+}}
+\def\abntextodisabledecimalcomma{\let\abntextodecimalcomma=\relax}
+\@onlypreamble \abntextodisabledecimalcomma
+\AtBeginDocument{\abntextodecimalcomma}
 %. \end{code}
+
+% A vírgula decimal pode ser desabilitada escrevendo-se `\abntextodisabledecimalcomma`, no preâmbulo do documento.
 
 % \codesection{TRADUÇÕES}
 
@@ -1944,9 +2092,9 @@
 % do `babel`, em especial, `portuges.ldf`:
 
 % \begin{code}
-\def\listacronymname{Lista de Siglas}
-\def\listabbreviationname{Lista de Abreviaturas}
-\def\listsymbolname{Lista de Símbolos}
+\def\listacronymname{List of Acronyms}
+\def\listabbreviationname{List of Abreviations}
+\def\listsymbolname{List of Simbols}
 %. \end{code}
 
 % Em seguida, definiremos os localizadores acima nas âncoras do `babel.sty`,
@@ -1977,7 +2125,7 @@
 }
 %. \end{code}
 
-% \codesection{O COMANDO \type{\\MakeUppercase} E O HYPERREF}
+% \codesection{O COMANDO \type{\\MakeUppercase} E O \type{hyperref}}
 
 % Abaixo está definido um ajuste para que o `hyperref` não crie conflito com
 % `\MakeUppercase` nas entradas do Sumário em situações como
@@ -1988,13 +2136,18 @@
 % habilitada no `hyperref`: as cores dos \emph{links} não aparecem.
 
 % \begin{code}
-\AtBeginDocument{%
+\def\abntextohyperrefpatch{%
     \ifdefined\XeTeXversion \else
         \let\tnba@hyper@linkstartORI=\hyper@linkstart
-        \protected\def\hyper@linkstart#1#2{\lowercase{\tnba@hyper@linkstartORI{#1}{#2}}}%
+        \protected\def\hyper@linkstart##1##2{\lowercase{\tnba@hyper@linkstartORI{##1}{##2}}}%
     \fi
 }
+\def\abntextodisablehyperrefpatch{\let\abntextohyperrefpatch=\relax}
+\@onlypreamble \abntextodisablehyperrefpatch
+\AtBeginDocument{\abntextohyperrefpatch}
 %. \end{code}
+
+% O \emph{patch} pode ser desfeito com `\abntextodisablehyperrefpatch`.
 
 % \codesection{COMPATIBILIDADE}
 
@@ -2080,14 +2233,16 @@
     {Configure a lista topics usando o pacote "enumitem" carregado por padrão no abntexto}}
 \protected\def \tnba@obs@topicslabelii {\tnba@obsolete\topicslabelii
     {Configure a lista topics usando o pacote "enumitem" carregado por padrão no abntexto}}
-\protected\def \tnba@obs@printlegend {\tnba@obsolete\printlegend{Use \noexpand\printlegendbox ao invés}}
-\protected\def \tnba@obs@printplace {\tnba@obsolete\printplace{Use \noexpand\printplacebox ao invés}}
-\protected\def \tnba@obs@printsrc {\tnba@obsolete\printsrc{Use \noexpand\printsrcbox ao invés}}
+\protected\def \tnba@obs@printlegend {%
+    \tnba@obsolete\printlegend{Use \noexpand\printlegendbox ao invés}}
+\protected\def \tnba@obs@printplace {%
+    \tnba@obsolete\printplace{Use \noexpand\printplacebox ao invés}}
+\protected\def \tnba@obs@printsrc {%
+    \tnba@obsolete\printsrc{Use \noexpand\printsrcbox ao invés}}
 %. \end{code}
 
 % Os comandos abaixo estão obsoletos, mas o `abntexto` vai manter suas
-% funcionalidades ao máximo e emitirá um alerta caso sejam usados. No futuro,
-% estes comandos serão removidos.
+% funcionalidades ao máximo e emitirá um alerta caso sejam usados.
 
 % \begin{code}
 \def \sizeselectordef #1#2#3{\tnba@obs@sizeselectordef
@@ -2294,10 +2449,12 @@
 \DeclareOption{10pt}{\input{size10.clo}%
     \definesize\normalsize{10bp}{11.5bp}{}% 11.5 = 10 * 1.15
     \definesize\abntsmall{9bp}{10.35bp}{}% 10.35 = 9 * 1.15
+    \normalsize
 }
 \DeclareOption{11pt}{\input{size11.clo}%
     \definesize\normalsize{11bp}{12.65bp}{}% 12.65 = 11 * 1.15
     \definesize\abntsmall{10bp}{11.15bp}{}% 11.15 = 10 * 1.15
+    \normalsize
 }
 \DeclareOption{12pt}{}% Já é o padrão.
 \DeclareOption{oneside}{\tnba@warning{Opção "oneside" inexistente em
@@ -2308,8 +2465,8 @@
                                       \string\documentclass. Prefira redefinir
                                       "\string\onesidelayout", "\string\twosidelayout"
                                       ou ambos}}
-\DeclareOption{draft}{\overfullrule=5pt}
-\DeclareOption{final}{\overfullrule=0pt}
+\DeclareOption{draft}{\overfullrule=5pt }
+\DeclareOption{final}{\overfullrule=0pt }
 %. \end{code}
 
 % As linhas abaixo foram comentadas, porque o principal objetivo do ambiente

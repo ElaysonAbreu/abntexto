@@ -1,13 +1,22 @@
-%! Public Domain Software 2022-2026
-%! 2026-03-04
-%! 1.0
-%! Elayson Abreu
-%! abntexto.classe@gmail.com
+%! File:    abntexto.tex
+%! License: Public Domain Software
+%! Version: 1.1 2026-05-08
+%! Author:  Elayson Abreu 2022--2026
+%! Contact: abntexto.classe@gmail.com
+%!
+%! This work consists of the files
+%!  abntexto.bib, abntexto-exemplo.bib,
+%!  abntexto.cls, abntexto-3-2-1-beta.cls,
+%!  CHANGELOG.md, README.md,
+%!  abntexto-birds.jpg, abntexto.pdf,
+%!  abntexto-exemplo.pdf, abntexto-onehalf-tex.pdf
+%!  abntexto-onehalf-word.tex, abntexto-screenshot.png,
+%!  abntexto.tex, abntexto-exemplo.tex
 
 % !TeX TS-program = lualatex
 \documentclass{abntexto}
 
-\usepackage[german,english,brazil,shorthands=off]{babel}
+\usepackage[german,english,brazilian,shorthands=off]{babel}
 \usepackage[cmyk]{xcolor}
 \usepackage{lipsum}
 \usepackage[
@@ -18,7 +27,8 @@
 \usepackage{unicode-math}
 \usepackage[colorlinks,linktoc=page]{hyperref}
 \usepackage{microtype}
-\usepackage[brazilian,capitalize,noabbrev]{cleveref}\AtBeginDocument{\def\ref#1{\cref{#1}}}
+\usepackage[brazilian,capitalize,noabbrev]{cleveref}
+    \AtBeginDocument{\let\ORIref=\ref \def\ref#1{\cref{#1}}}
 \usepackage{fontspec}
 \usepackage{listings}
 \usepackage{lua-widow-control} \clubpenalty=10000\widowpenalty=10000
@@ -29,7 +39,11 @@
 % ================================================
 
 \def\adef#1{\catcode`#1=13 \begingroup \lccode`\~=`#1\lowercase{\endgroup\def~}}
-\def\setverb{\def\do##1{\catcode`##1=12}\dospecials\space}
+\begingroup
+    \def\do#1{\catcode\number`#1=12}
+    \xdef\mydospecials{\dospecials\relax}
+\endgroup
+\let\setverb=\mydospecials
 \def\verbchar#1{%
     \ifx\savedttchar\undefined\else \catcode\savedttchar=\savedttcharc \fi
     \chardef\savedttchar=`#1\relax
@@ -78,11 +92,11 @@
 \let\lchevron=<
 {\catcode`<=13 \AtBeginDocument{\catcode`<=13
     \def<#1>{\ifhmode\else\expandafter\hbox\fi\bgroup\normalcolor\ttfamily
-             $\color{gray}\langle$\/{\rmfamily\itshape #1\/}$\color{gray}\rangle$\egroup}}%
-}
+             $\color{gray}\langle$\/{\rmfamily\itshape #1\/}$\color{gray}\rangle$\egroup}%
+}}
 
-\def\type#1{\NoCaseChange{\protect\typeA{#1}}}
-\def\typeA#1{\bgroup\normalshape\ttfamily{\escapechar=-1\relax\expandafter}\detokenize{#1}\egroup}
+\def\type#1{\NoCaseChange{\protect\dotype{#1}}}
+\def\dotype#1{\bgroup\normalshape\ttfamily{\escapechar=-1\relax\expandafter}\detokenize{#1}\egroup}
 % Precisamos de \m@ne aqui, \m@ne=-1.
 \pdfstringdefDisableCommands{%
     \def\type#1{\bgroup\escapechar\m@ne\expandafter\egroup\detokenize{#1}}%
@@ -90,6 +104,7 @@
     \let\m@ne=\relax
 }
 
+% A opção cmyk foi passada para xcolor.
 \definecolor{P}{RGB}{242, 121, 0}   % Primitivas.
 \definecolor{C}{RGB}{23, 230, 23}   % Comentários.
 \definecolor{B}{RGB}{245, 250, 247} % Fundo.
@@ -186,28 +201,33 @@
 
 \let\over=\@@over
 \AtBeginDocument{\def\refname{Referências}} % Removido \^ da definição.
-\def\hooksection{}
 \def\tocsubsectionfont{\itshape}
 \def\subsectionfont   {\itshape}
-\AtBeginDocument{\pretocmd\appendix{\clearpage}{}{}}
-\pretocmd\annex{\clearpage}{}{}
+\def\hooksection{}
+\pretocmd\inappendix{\clearpage}{}{}
+\pretocmd\inannex{\clearpage}{}{}
 \def\etex{\leavevmode\hbox{$\varepsilon$-\TeX}}
 \def\pdflatex{\leavevmode\hbox{PDF\LaTeX}}
 \def\xelatex{\leavevmode\hbox{Xe\LaTeX}}
 \def\lualatex{\leavevmode\hbox{Lua\LaTeX}}
 \def\me{Elaboração própria.}
-\def\bibfont{\raggedright\interlinepenalty=10000\singlesp\bibitemsep=\baselineskip}
+\def\ABNT{Associação Brasileira de Normas Técnicas (ABNT)\doABNT}
+% Precisa ser \protected contra \edef.
+\protected\def\doABNT{\gdef\ABNT{ABNT}}
+\ifdefined\bibsetup
+    \appto\bibsetup{\raggedright\interlinepenalty=10000
+                    \singlesp\bibitemsep=\baselineskip}
+\fi
 \appto\textual{
     \def\@evenhead{\abntsmall \firstmarks0\hfil\thepage}
     \def\@oddhead {\abntsmall \botmarks1\hfil\thepage}
-    \def\sectionmark   #1{\marks0{Seção \thesection: \unexpanded{#1}}}
+    \def\sectionmark   #1{\marks0{Seção \thesection: \unexpanded{#1}}\marks1{}}
     \def\subsectionmark#1{\marks1{Subseção \thesubsection: \unexpanded{#1}}}
     \preto\@oddhead {\lower4pt\rlap{\vrule width\hsize height.4pt}}
     \preto\@evenhead{\lower4pt\rlap{\vrule width\hsize height.4pt}}
 }
 \patchcmd{\eletroniclayout}{false}{true}{}{}
-\let\onesidelayout=\eletroniclayout
-\let\twosidelayout=\eletroniclayout
+\useeletroniclayout
 \hypersetup{
     pdfauthor   = Elayson Abreu,
     pdftitle    = Classe ABNTexto: normas ABNT em LaTeX,
@@ -230,7 +250,7 @@
     \today
 \vskip2in\endgroup
 
-\noindent\hfil {\Large\ttfamily 1.0}
+\noindent\hfil {\Large\ttfamily 1.1}
 \newpage
 
 \nonum\notoc\section{Sumário}
@@ -241,27 +261,34 @@
 
 O `abntexto` é uma classe do \LaTeX\ criada para facilitar a utilização das normas da Associação Brasileira de Normas Técnicas (ABNT) em trabalhos acadêmicos (monografias, dissertações, teses). Ela carrega os recursos necessários para a elaboração de trabalhos nessas normas.
 
-Este \emph{não} é um manual sobre LaTeX (ou TeX, a ferramenta que o constitui) nem tampouco uma descrição detalhada sobre as normas ABNT. Para aprender sobre LaTeX leia \textcite{massago-2022-latex2e-via-exemplos}, em português, ou \textcite{martinsen-2022-latex2e-an-unnoficial}, disponível em inglês, espanhol e francês. Além disso, também se pode ler \textcite{olsak-2012-tex-in-nutshell} e \textcite{eijkhout-1992-tex-by-topic}, disponíveis em inglês, para aprender sobre o sistema \TeX.
+Este \emph{não} é um manual sobre LaTeX (ou TeX, a ferramenta que o constitui) nem tampouco uma descrição detalhada sobre as normas ABNT. Para aprender sobre LaTeX leia \textcite{massago-2022-latex2e-via-exemplos}, em português, ou \textcite{martinsen-2022-latex2e-an-unnoficial}, disponível em inglês, espanhol e francês. Além disso, também se pode ler \textcite{olsak-2012-tex-in-nutshell} e \textcite{eijkhout-1992-tex-by-topic}, disponíveis em inglês, para aprender sobre o sistema \TeX\footnote{As citações nesse parágrafo não são, de fato, citações já que nenhuma frase foi citada, mas isso não é um problema porque este manual não é um trabalho acadêmico. Outras situações como essa ocorrem no manual, ao citar pacotes, por exemplo.}.
 
 Já existe uma classe para aplicação das normas ABNT cujo nome é `abntex2` \cite{araujo-2012-a-classe-abntex2}. Mas, diferente dessa, o `abntexto` não depende do `memoir`, uma classe de código-fonte e manual extensos e que implementa funções as quais, em sua maioria, não são pertinentes a um documento que use as diretrizes da ABNT.
 
 As normas ABNT as quais o `abntexto` se propõe a seguir seguem listadas:
 
 \begin{topics}
-    \item NBR 14724:2024. Informação e documentação --- Trabalhos acadêmicos --- Apresentação \cite{abnt-2024-14724-trabalhos-academicos};
+    \item NBR 14724:2024. Informação e documentação --- Trabalhos acadêmicos --- Apresentação;
+%     \cite{abnt-2024-14724-trabalhos-academicos};
 %    \item NBR 12225:2004. Informação e documentação --- Lombada --- Apresentação \cite{abnt-2004-12225-lombada};
 %    \item NBR 6028:2021. Informação e documentação --- Resumo --- Apresentação \cite{abnt-2021-6028-resumo-resenha-recensao};
-    \item NBR 6027:2012. Informação e documentação --- Sumário --- Apresentação \cite{abnt-2012-6027-sumario};
-    \item NBR 10520:2023. Informação e documentação --- Citações em documentos --- Apresentação \cite{abnt-2023-10520-citacoes};
+    \item NBR 6027:2012. Informação e documentação --- Sumário --- Apresentação;
+%    \cite{abnt-2012-6027-sumario};
+    \item NBR 10520:2023. Informação e documentação --- Citações em documentos --- Apresentação;
+%    \cite{abnt-2023-10520-citacoes};
 %    \item NBR 6023:2018. Informação e documentação --- Referências --- Elaboração \cite{abnt-2018-6023-referencias};
 %    \item NBR 5892:2019. Informação e documentação --- Representação e formatos de tempo --- Datas e horas --- Apresentação \cite{abnt-2019-5892-representacao-e-formatos-de-tempo};
-    \item NBR 6024:2012. Informação e documentação --- Numeração progressiva das seções de um documento --- Apresentação \cite{abnt-2012-6024-numeracao-progressiva-das};
-    \item IBGE. Normas de apresentação tabular \cite{ibge-1993-normas-de-apresentacao}.
+    \item NBR 6024:2012. Informação e documentação --- Numeração progressiva das seções de um documento --- Apresentação;
+%    \cite{abnt-2012-6024-numeracao-progressiva-das};
+    \item IBGE. Normas de apresentação tabular.
+%    \cite{ibge-1993-normas-de-apresentacao}.
 \end{topics}
+
+A versão mais recente desse manual sempre estará no repositório do Github\footnote{\url{https://github.com/ElaysonAbreu/abntexto}.} (a versão no CTAN\footnote{\url{https://ctan.org/pkg/abntexto}.} não necessariamente é a mais recente).
 
 \subsection{Nota de compatibilidade}
 
-No salto da versão anterior, 3.2.1-beta, para esta, 4.0.6-beta, muito do código-fonte foi reescrito; funcionalidades foram adicionadas; comandos obsolesceram. Por consequência, documentos antigos irão certamente quebrar em \emph{layout} e aparência.
+No salto da versão 3.2.1-beta para a 4.0.0-beta, muito do código-fonte foi reescrito; funcionalidades foram adicionadas; comandos obsolesceram. Por consequência, documentos antigos irão certamente quebrar em \emph{layout} e aparência.
 
 Para que os usuários tenham tempo de atualizar para esta nova versão, o arquivo `abntexto-3-2-1-beta.cls` foi deixado no repositório da classe no CTAN\footnote{\url{https://ctan.org/pkg/abntexto}.}. Todavia, para documentos antigos que já foram concluídos, não faz sentido atualizá-los para a versão atual. Nesse caso, seria pertinente copiar o arquivo `abntexto-3-2-1-beta.cls` para o mesmo diretório do documento cuja fase de escrita já foi concluída, chamá-lo por meio de `\documentclass{abntexto-3-2-1-beta}`, e, dessa forma, garantir que o resultado da compilação seja sempre o mesmo.
 
@@ -275,7 +302,7 @@ Comandos da forma `\<ext>labelwidth` tais como `\toclabelwidth`, `\appendixlabel
 
 O pacote `enumitem` é carregado pela classe e o ambiente `topics` foi reescrito em função do referido pacote.
 
-A partir de agora, use `\abntsmall` ao invés de `\small`. Por enquanto, o significado deste será igual ao daquele.
+A partir de agora, use `\abntsmall` ao invés de `\small` para o tamanho menor e uniforme. A partir da versão 1.1 da classe, o significado de `\small` será aquele definido na classe `article`.
 
 \subsection{\emph{Feedback}}
 
@@ -311,9 +338,44 @@ O autor da classe recomenda o uso do \lualatex\ na compilação, embora o \pdfla
     \end{document}
 \end{lst}
 
-O arquivo `abntexto-exemplo.tex`, disponível no diretório da classe no CTAN, mostra como elaborar os elementos pré-textuais.
+O arquivo `abntexto-exemplo.tex`, disponível no diretório da classe no CTAN e no Github, mostra como elaborar os elementos pré-textuais. Além disso, escritores de classe podem querer usar a classe `abntexto-uece.cls`\footnote{\url{https://ctan.org/pkg/abntexto-uece}.} como exemplo para elaboração de suas classes.
 
 \section{Fonte tipográfica}
+
+A NBR~14\,724:2024 não especifica o tipo de fonte que deve ser usado no documento. Se você precisa de uma fonte \emph{semelhante} a Times New Roman, você pode usar o exemplo em \ref{cd:inicio}. Se você precisa da Times New Roman verdadeira, é necessário, primeiro, estar no \lualatex\ ou no \xelatex, segundo, possuir um sistema operacional que contenha a referida fonte (Windows, por exemplo), terceiro, carregar `fontspec` e, por fim, escrever:
+\begin{xp}
+    \documentclass{abntexto}
+    \usepackage{fontspec}     % Disponibiliza \setmainfont.
+    \usepackage{unicode-math} % Disponibiliza \setmathfont.
+    \setmainfont{Times New Roman}
+    \setmathfont{XITSMath-Regular.otf}
+    \begin{document}
+    Exemplo: $$ f(x) = ax+b $$.
+    \end{document}
+\end{xp}
+
+Se você precisa da verdadeira fonte Arial, basta substituir \enquote{Times New Roman}, no exemplo acima, por \enquote{Arial} e substituir \enquote{XITSMath-Regular.otf} por \enquote{FiraMath-Regular.otf} para usufruir de uma fonte matemática compatível com Arial.
+
+Se o usuário final não tem escolha a não usar o \pdflatex\ na compilação, ele pode definir um preâmbulo semelhante ao abaixo para carregar as fontes New TX, semelhantes a Times New Roman:
+\begin{xp}
+    \documentclass{abntexto}
+    % É carregado automaticamente desde 2018:
+    % https://tex.stackexchange.com/a/641193/383003
+    % \usepackage[utf8]{inputenc}
+    \usepackage[T1]{fontenc}
+    \usepackage{newtxtext}
+    \usepackage{newtxmath}
+    \usepackage{amsmath}
+    \usepackage{mathtools}
+    \begin{document}
+    Exemplo $$ ax^2 + bx + c = 0 $$.
+    \end{document}
+\end{xp}
+O pacote `newtx` possui muitas opções de personalização, veja o manual no CTAN\footnote{\url{https://ctan.org/pkg/newtx}.}.
+
+Os pacotes `times`, `txfonts` e `mathptmx` são considerados obsoletos.
+
+\subsection{Tamanho da fonte}
 
 O tamanho da fonte é 12\,pt de imediato e pode ser configurado redefinindo `\normalsize` por meio de \^`\definesize`, cuja sintaxe é
 \begin{xp}
@@ -322,37 +384,37 @@ O tamanho da fonte é 12\,pt de imediato e pode ser configurado redefinindo `\no
 \end{xp}
 O primeiro argumento é o nome do seletor (`\normalsize`, por exemplo). O segundo argumento é o tamanho da fonte. O terceiro é a entrelinha simples que deve ser selecionada levando em conta o valor do segundo argumento. Por exemplo, uma fonte com tamanho 10\,pt deve ter por volta de 12\,pt de entrelinha simples. O quarto argumento é para ajuste de valores dependentes do tamanho da fonte, por exemplo `\abovedisplayskip` ou `\bigskipamount`.
 
-A classe `article`, na qual se baseia o `abntexto`, fornece os seletores habituais `\tiny`, `\footnotesize`, `\Large` etc. No entanto, esta classe se limitou a redefinir apenas dois: `\normalsize` para o tamanho padrão do texto e \^`\abntsmall` para satisfazer a exigência da \textcite{abnt-2024-14724-trabalhos-academicos} acerca do tamanho menor e uniforme. Até a versão anterior da classe, 3.2.1-beta, o comando `\small` era usado, mas foi substituído por `\abntsmall` para não haver conflito com o significado original de `\small` da classe `article`.
+A classe `article`, na qual se baseia o `abntexto`, fornece os seletores habituais `\tiny`, `\footnotesize`, `\Large` etc. No entanto, o `abntexto` se limitou a definir apenas dois: `\normalsize` para o tamanho padrão do texto e \^`\abntsmall` para satisfazer a exigência da NBR~14\,724 acerca do tamanho menor e uniforme: \Enquote{Recomenda-se, quando o trabalho for digitado, a fonte tamanho 12 para todo o texto, inclusive a
+capa, excetuando-se citações diretas com mais de três linhas, notas de rodapé, paginação, dados
+internacionais de catalogação na publicação, fontes e legendas das ilustrações e das tabelas, que
+devem ser em tamanho menor e uniforme \cite[p.~10]{abnt-2024-14724-trabalhos-academicos}.} Até a versão 3.2.1-beta da classe, o comando `\small` era usado, mas foi substituído por `\abntsmall`.
 
-O espaçamento é de 1,5 por padrão e pode ser alterado com os atalhos \^`\singlesp` e \^`\onehalfsp` que alternam para espaçamento simples e de 1,5, respectivamente\footnote{O \type{\\doublesp} está obsoleto.}. A fórmula desses comandos foi atualizada, portanto documentos com versões antigas do `abntexto` terão o \emph{layout} alterado.
+O espaçamento é de 1,5 por padrão e pode ser alterado com os atalhos \^`\singlesp` e \^`\onehalfsp` que alternam para espaçamento simples e de 1,5, respectivamente\footnote{O \type{\\doublesp} está obsoleto.}. A fórmula desses comandos foi atualizada, portanto documentos com versão anterior a 3.2.1-beta do `abntexto` terão o \emph{layout} alterado.
 
-Nesta versão, `\spacing` está obsoleto porque esse comando ainda usa a fórmula antiga. Além disso, ele tem uma limitação: só pode ser usado após um seletor de tamanho, porque tais seletores redefinem `\baselineskip` diretamente. Por exemplo, `\abntsmall\spacing{<fator>}` é correto, porém `\spacing{<fator>}\abntsmall` é ineficaz. Essa limitação não existe ao usar os reimplementados `\singlesp` e `\onehalf` de forma que tanto `\singlesp\onehalfsp` quanto `\onehalfsp\singlesp` produzem o mesmo efeito.
+A partir da versão 4.0.0-beta, `\spacing` está obsoleto porque esse comando ainda usa a fórmula antiga. Além disso, ele tem uma limitação: só pode ser usado após um seletor de tamanho, porque tais seletores redefinem `\baselineskip` diretamente. Por exemplo, `\abntsmall\spacing{<fator>}` é correto, porém `\spacing{<fator>}\abntsmall` é ineficaz. Essa limitação não existe ao usar os reimplementados `\singlesp` e `\onehalf` de forma que tanto `\abntsmall\onehalfsp` quanto `\onehalfsp\abntsmall` produzem o mesmo efeito.
 
 \section{\emph{Layout}}
 
 A folha é A4 por padrão e as margens esquerda e direita são de, respectivamente, 3\,cm, 2\,cm para páginas ímpares e de, respectivamente, 2\,cm, 3\,cm para páginas pares. Além disso, as margens superior e inferior têm, nessa ordem, 3\,cm, 2\,cm para todo o documento. Essas margens foram ajustadas com o pacote `geometry`, carregado na classe.
 
-Existem dois comandos que configuram o \emph{layout} da página: \^`\pretextual` e \^`\textual`. O primeiro é iniciado automaticamente durante `\begin{document}`, invoca \^`\onesidelayout` e remove a numeração de página. O segundo, `\textual`, também é executado automaticamente pelo primeiro `\section` numerado, invoca \^`\twosidelayout` e ativa a numeração de página.
+Existem dois comandos que configuram o \emph{layout} da página: \^`\pretextual` e \^`\textual`. O primeiro é iniciado automaticamente durante `\begin{document}`, invoca \^`\onesidelayout` e remove a numeração de página. O segundo, `\textual`, também é executado automaticamente pelo primeiro `\section` numerado (não prefixado com `\nonum`), invoca \^`\twosidelayout` e ativa a numeração de página.
 
 O comando `\onesidelayout` configura as páginas para impressão de somente um lado do papel (anverso) ao passo que `\twosidelayout` espelha as margens do documento, habilitando a impressão para os dois lados do papel (anverso e verso).
 
-Os trabalhos acadêmicos podem vir a ser disponiblizados num repositório \emph{online}. Nesse caso, o usuário pode querer reconfigurar as margens de forma a se ter uma leitura mais confortável em dispositivos eletrônicos. Para esse propósito foi criado o comando \^`\eletroniclayout`, apesar dessa configuração não estar prevista na ABNT.
+Os trabalhos acadêmicos podem vir a ser disponiblizados num repositório \emph{online}. Nesse caso, o usuário pode querer reconfigurar as margens de forma a se ter uma leitura mais confortável em dispositivos eletrônicos. Para esse propósito foi criado o comando \^`\useeletroniclayout`, apesar dessa configuração não estar prevista na ABNT. O `\useeletroniclayout` centraliza o corpo do texto configurando 2,5~cm nas margens esquerda e direita da página. Veja um exemplo de uso em \ref{cd:eletroniclayout}:
 
-Há duas formas de ativá-lo. A primeira é, no preâmbulo, redefinir `\pretextual` e `\textual` substituindo as instruções `\onesidelayout` e `\twosidelayout` por `\eletroniclayout`. A segunda possibilidade é, também no preâmbulo, redefinir `\onesidelayout` e `\twosidelayout` diretamente conforme \ref{cd:eletroniclayout}. O comando `\eletroniclayout` centraliza o corpo do texto configurando 2,5\,cm nas margens esquerda e direita.
-
-\legend{code}{\emph{Layout} para dispositivos eletrônicos}
-\src\me
+\legend{code}{Uso de \type{\\useeletroniclayout}}
 \label{cd:eletroniclayout}
+\src\me
 \begin{lst}
     \documentclass{abntexto}
-    \let\onesidelayout=\eletroniclayout
-    \let\twosidelayout=\eletroniclayout
+    \useeletroniclayout
     \begin{document}
-        texto
+        Corpo do documento com margens esquerda e direita valendo 2,5 cm.
     \end{document}
 \end{lst}
 
-Outros comandos de estilo de página tais como `\pagestyle`\{{\ttfamily headings, empty, myheadings, plain}\} herdados da classe `article` não fazem sentido no `abntexto`. Ao invés de usá-los, é aconselhável redefinir `\textual`, `\pretextual` ou ambos.
+Outros comandos de estilo de página tais como `\pagestyle`{\ttfamily \{}{\ttfamily headings, empty, myheadings, plain}{\ttfamily \}}, herdados da classe `article`, não fazem sentido no `abntexto`. Ao invés de usá-los, é aconselhável redefinir `\textual`, `\pretextual` ou ambos.
 
 \section{Sumário}
 
@@ -375,9 +437,8 @@ Os comandos que configuram a fonte tipográfica das entradas do Sumário são \^
     \def \tocsubsectionfont {\color{blue}\bfseries}
 
     \begin{document}
-        \nonum\notoc\section{Sumário}
+        \nonum\notoc\section{\contentsname}
         \maketoc
-        \newpage
 
         \section{Título}
         \subsection{Título}
@@ -412,27 +473,35 @@ Também há como alterar o espaço vertical acima e abaixo das seções redefini
 
 \subsection{O uso de \type{\\chapter} e \type{\\part}}
 
-De acordo com a \textcite{abnt-2024-14724-trabalhos-academicos}: \enquote{[\dots] O trabalho acadêmico não pode ser dividido em capítulos; deve ser organizado em seções [\dots]}.
+De acordo com a NBR~14\,724 da \textcite[p.~8]{abnt-2024-14724-trabalhos-academicos}: \enquote{O trabalho acadêmico não pode ser dividido em capítulos; deve ser organizado em seções [\dots]}.
 
-O usuário pode querer utilizar capítulos no trabalho, apesar de a unidade secional `\section` ser suficiente para um trabalho acadêmico. Para esse propósito, o `abntexto` disponibiliza a instrução \^`\chapter` para a utilização de capítulos no documento, porém não em conformidade com a \textcite{abnt-2024-14724-trabalhos-academicos}, mas no estilo da classe `book`. Para ativá-los é preciso chamar a instrução \^`\usechapters` no preâmbulo.
+O usuário pode querer utilizar capítulos no trabalho, apesar de a unidade secional `\section` ser suficiente para um trabalho acadêmico. Para esse propósito, o `abntexto` disponibiliza a instrução \^`\chapter` para a utilização de capítulos no documento, porém não em conformidade com a NBR~14\,724:2024, mas no estilo da classe `book`. Para ativá-los é preciso chamar a instrução \^`\usechapters` no preâmbulo.
 
 Também é possível usar \^`\part` em conjunto com o comando \^`\useparts`. Esse útlimo contém `\usechapters` em sua definição, portanto, ao chamar `\useparts`, não se deve chamar `\usechapters` para que este não sobrescreva as definições daquele.
 
-Os níveis secionais `\section` e `\chapter` podem ser prefixados com \^`\nonum` que remove a numeração do título: `\nonum\section`. Os títulos prefixados com `\nonum` serão centralizados \cite{abnt-2024-14724-trabalhos-academicos}. Veja um exemplo de uso em \ref{cd:nonum}.
+É importante lembrar que, de acordo com NBR~6024:2012, \enquote{deve-se limitar a numeração progressiva até a seção quinária} \cite[p.~2]{abnt-2012-6024-numeracao-progressiva-das} mesmo que `\usechapters` e `\useparts` permitam até sete níveis secionais em um documento.
+
+Os níveis secionais `\section` e `\chapter` podem ser prefixados com \^`\nonum` que remove a numeração do título: `\nonum\section`. Os títulos prefixados com `\nonum` serão centralizados
+em conformidade com a NBR~14\,724: \Enquote{Os títulos sem indicativo numérico --- errata, agradecimentos, lista de ilustrações, lista de tabelas, lista
+de abreviaturas e siglas, lista de símbolos, resumos, sumário, referências, glossário, apêndice(s),
+anexo(s) e índice(s) --- devem ser centralizados \cite[p.~10]{abnt-2024-14724-trabalhos-academicos}}
+Veja um exemplo de uso de `\nonum` em \ref{cd:nonum}.
 
 \legend{code}{Exemplo de título sem numeração e sem ingresso ao Sumário}
 \src\me
 \label{cd:nonum}
 
 \begin{lst}
-    \nonum\notoc\section{Resumo}
+    \nonum\notoc\section{\abstractname}
     Texto
 
-    \nonum\notoc\section{Sumário}
+    \nonum\notoc\section{\contentsname}
     \maketoc
 \end{lst}
 
-As unidades secionais supracitadas também podem ser prefixadas com \^`\notoc` que instrui o título a não ingressar no Sumário: `\notoc\section`. Além disso, é possível usar ambos os prefixos ao mesmo tempo, conforme mostrado em \ref{cd:nonum}.
+As unidades secionais supracitadas também podem ser prefixadas com \^`\notoc` que instrui o título a não ingressar no Sumário. Além disso, é possível usar ambos os prefixos ao mesmo tempo, conforme mostrado em \ref{cd:nonum}.
+
+É importante esclarecer que `\nonum\section` e `\nonum\notoc\section` fazem sentido, mas `\notoc\section`, provavelmente não, porque todos os títulos numerados devem ingressar ao sumário. Para ser mais exato, `\notoc\section` produz um título numerado que não ingressa ao sumário nem a lista de marcadores do leitor de PDF.
 
 O primeiro parágrafo após uma seção é indentado por padrão, dispensando, assim, o uso do pacote `indentfirst`.
 
@@ -466,6 +535,66 @@ Existe a possibilidade de o usuário desejar criar um Índice usando o ambiente 
     \end{corrprint}
 \end{lst}
 
+\subsection{Seções quaternárias e quinárias}
+
+Por padrão não há tratamento tipográfico de seções quaternárias e quinárias no `abntexto`, ou seja, `\def\paragraphfont{}`, `\def\tocparagraphfont{}`, `\def\subparagraphfont{}` e `\def\tocsubparagraphfont{}`. Mas, se o leitor estiver usando a fonte XITS no \lualatex\ com `fontspec`, por exemplo, uma formatação pode ser atribuída conforme \ref{cd:quaternárias}. Tivemos que usar `\addfontfeatures{FakeSlant=.2}` ao invés de `\itshape` neste caso porque a fonte XITS não possui versão Small Caps Italic/Slanted.
+
+\legend{code}{Seções quaternárias e quinárias}
+\src\me
+\label{cd:quaternárias}
+\begin{lst}
+    \documentclass{abntexto}
+
+    \usepackage[english,brazil]{babel}
+    \usepackage{fontspec}
+    \usepackage{unicode-math}
+
+    \setmainfont{XITS}[
+        UprightFont    = *-Regular,
+        BoldFont       = *-Bold,
+        ItalicFont     = *-Italic,
+        BoldItalicFont = *-BoldItalic,
+        Extension      = .otf
+    ]
+    \setmathfont{XITSMath-Regular.otf}
+
+    \def\paragraphfont      {\scshape}
+    \def\subparagraphfont   {\scshape\addfontfeatures{FakeSlant=.2}}
+    \def\tocparagraphfont   {\scshape}
+    \def\tocsubparagraphfont{\scshape\addfontfeatures{FakeSlant=.2}}
+
+    \begin{document}
+        \nonum\notoc\section{Sumário}
+        \maketoc
+        \paragraph{Seção quaternária}
+        \subparagraph{Seção quinária}
+    \end{document}
+\end{lst}
+
+\subsection{Seções no anverso}
+
+A NBR~14\,724 da \textcite[p.~10]{abnt-2024-14724-trabalhos-academicos} diz que \enquote{para trabalhos apresentados em anverso e verso, os títulos das seções primárias devem começar em página ímpar (anverso). Para trabalhos apresentados apenas no anverso, os títulos das seções primárias devem começar em nova página.}.
+
+O comando de quebra de página em `\part`, `\chapter` e `\section`, nas âncoras \^`\hookpart`, \^`\hookchapter` e \^`\hooksection`, é `\clearpage`:
+\begin{xp}
+    \def\hookpart{\clearpage}
+    \def\hookchapter{\clearpage}
+    \def\hooksection{\clearpage}
+\end{xp}
+O `\clearpage`, todavia, apenas inicia uma nova página, seja ela no verso ou no anverso. Tendo isso em vista, a fim de seguir a recomendação acima, o usuário final pode criar o comando `\nextoddphysicalpage`\footnote{Comando criado com base numa resposta em \url{https://tex.stackexchange.com/a/762186/383003}.} e redefinir as âncoras acima:
+\begin{xp}
+    \def\nextoddphysicalpage{%
+        \clearpage
+        \ifodd\ReadonlyShipoutCounter
+            \mbox{}\clearpage
+        \fi
+    }
+    \def\hookpart{\nextoddphysicalpage}
+    \def\hookchapter{\nextoddphysicalpage}
+    \def\hooksection{\nextoddphysicalpage}
+\end{xp}
+É necessário ter o TeX Live 2021 ou superior para que o `\ReadonlyShipoutCounter` esteja disponível. Tal modificação não pode ser anexada ao código-fonte da classe porque isso causaria uma incompatibilidade com documentos antigos.
+
 \section{Alíneas}
 
 Use o ambiente \^`topics` para criar alíneas. Ele dispõe de dois níveis sendo que o segundo usa um travessão como marcador conforme o exemplo em \ref{cd:topics}. Naturalmente, é permitido usar `\label` após um item.
@@ -489,11 +618,11 @@ Use o ambiente \^`topics` para criar alíneas. Ele dispõe de dois níveis sendo
 
 \section{Áreas de legenda\label{sec:area-de-legenda}}
 
-Use o ambiente \^`place` para inserir áreas de legenda. Ele substitui integralmente os ambientes `figure` e `table`, bem como o comando `\caption`, não suportados pela classe. Além disso, tem-se \^`\legend`\nobreak`{<tipo>}{<legenda>}` para titular; \^`\src`\nobreak`{<fonte>}` (\emph{source}) para inserir a fonte como mostrado em \ref{cd:place}. Porém, existem condições: `place` deve constar em último lugar e `\label` deve suceder `\legend`.
+Use o ambiente \^`place` para inserir áreas de legenda. Ele substitui integralmente os ambientes `figure` e `table`, bem como o comando `\caption`, não suportados pela classe. Além disso, tem-se \^`\legend`\nobreak`{<tipo>}{<legenda>}` para titular\footnote{Na NBR~14\,724, legenda não é sinônimo do título que acompanha as figuras/tabelas, apesar de o \type{abntexto} usar \type{\\legend} para titular \cite[p.~12]{abnt-2024-14724-trabalhos-academicos}.}; \^`\src`\nobreak`{<fonte>}` (\emph{source}) para inserir a fonte como mostrado em \ref{cd:place}. Porém, existem condições: `place` deve constar em último lugar e `\label` deve suceder `\legend`.
 
 \legend{code}{Áreas de legenda}
-\src\me
 \label{cd:place}
+\src\me
 
 \begin{lst}
     \begin{document}
@@ -510,21 +639,21 @@ Use o ambiente \^`place` para inserir áreas de legenda. Ele substitui integralm
 
 Além disso, existe a possibilidade de alterar o espaço vertical acima e abaixo de uma área de legenda com `\def`\^`\aboveplace``{<valor>}` e `\def`\^`\belowplace``{<valor>}`. Todavia, tais comandos não têm efeito em objetos flutuantes. Para modificar o espaçamento em `floats` o leitor pode fornecer valores diferentes para `\floatsep`, `\intextsep` e `\textfloatsep`, definidos no LaTeX.
 
-A partir desta versão, o `abntexto` passou a suportar objetos flutuantes. Por exemplo, em
+A partir da versão 4.0.0-beta, o `abntexto` passou a suportar objetos flutuantes. Por exemplo, em
 \begin{xp}
     \begin{place}[<especificação>]
 \end{xp}
 A `<especificação>` é composta pelas palavras-chave habituais: `!`, `t`, `b`, `p`, e `h`. Alternativamente, é possível usar a palavra-chave `here`, definida nesta classe. Com ela, o conteúdo de `place` é mostrado na página exatamente onde foi escrito no documento.
 
-A especificação padrão é `here` caso nenhuma seja explicitamente assumida, mas o usuário pode mudar o padrão digitando, por exemplo, `\def`\nobreak\^`\placepos``{tbp}` no preâmbulo do documento.
+A `<especificação>` padrão é `here` caso nenhuma seja explicitamente assumida, mas o usuário pode habilitar a flutuação de objetos digitando, por exemplo, \^`\setplacepos``{tbp}` no preâmbulo do documento.
 
 \subsection{Criando áreas de legenda}
 
-Até a versão anterior, 3.2.1-beta, o `abntexto` fornecia \^`\definelegendplace` para criação de novos espaços de legenda sob a sintaxe
+Até a versão 3.2.1-beta, o `abntexto` fornecia \^`\definelegendplace` para criação de novos espaços de legenda sob a sintaxe
 \begin{xp}
     \definelegendplace{<tipo>}{<nome>}{<ref rótulo>}{<extensão>}
 \end{xp}
-Nesta versão, no entanto, o terceiro argumento foi excluído em favor do suporte mais extensivo do pacote `cleveref.sty` (não carregado pela classe). Veja o \ref{app:cleveref} para mais detalhes. A partir de agora, a nova sintaxe é
+Na versão 4.0.0-beta, no entanto, o terceiro argumento foi excluído em favor do suporte mais extensivo do pacote `cleveref.sty` (não carregado pela classe). Veja o \ref{app:cleveref} para mais detalhes. A partir de agora, a nova sintaxe é
 \begin{xp}
     \definelegendplace{<tipo>}{<nome>}{<extensão>}
 \end{xp}
@@ -541,21 +670,24 @@ por exemplo, criará o comando `\makelod` para escrever no documento as entradas
 O `abntexto` tem suporte nativo para inserção de figuras lado a lado com o ambiente \^`multiplace`. Elas se comportam como caracteres então podemos usar `\hfil` para centralizá-las. Veja o exemplo no \ref{cd:multiplace} e o resultado em \ref{out:result}.
 
 \legend{code}{Figuras lado a lado}
-\src\me
 \label{cd:multiplace}
+\src\me
 \begin{lst}
     \legend{figure}{Duas figuras}
+    \label{fig:duas-figuras}
     \src{Elaboração do autor.}
 
     \begin{multiplace}
-        \sublegend{Um título} \label{fig:teste1}
+        \sublegend{Um título}
+        \label{fig:teste1}
         \subsrc{\texttt{www.site.com.br}. Acesso em 01 jan. 2020.}
         \hfil
         \begin{subplace}[.25\linewidth]
             \includegraphics[width=\linewidth]{example-image-a}
         \end{subplace}
         %
-        \sublegend{Outro título} \label{fig:teste2}
+        \sublegend{Outro título}
+        \label{fig:teste2}
         \subsrc{\texttt{www.site.com.br}. Acesso em 01 jan. 2020.}
         \hfil
         \begin{subplace}[.25\linewidth]
@@ -563,7 +695,7 @@ O `abntexto` tem suporte nativo para inserção de figuras lado a lado com o amb
         \end{subplace}
     \end{multiplace}
 
-    \parindent=1.5cm Ver \ref{fig:teste1} e \ref{fig:teste2}.
+    Ver Figura~\ref{fig:teste1} e Figura~\ref{fig:teste2} em Figura~\ref{fig:duas-figuras}.
 \end{lst}
 
 \legend{output}{Resultado do \ref{cd:multiplace}}
@@ -571,6 +703,7 @@ O `abntexto` tem suporte nativo para inserção de figuras lado a lado com o amb
 \src\me
 \begin{place}\vbox\bgroup
     \legend{figure}{Duas figuras}
+    \label{fig:duas-figuras}
     \src{Elaboração do autor.}
     %
     \begin{multiplace}
@@ -589,16 +722,20 @@ O `abntexto` tem suporte nativo para inserção de figuras lado a lado com o amb
         \end{subplace}
     \end{multiplace}
 
-    \parindent=1.5cm Ver \ref{fig:teste1} e \ref{fig:teste2}.
+    \parindent=1.5cm Ver Figura~\ORIref{fig:teste1} e Figura~\ORIref{fig:teste2} em Figura~\ORIref{fig:duas-figuras}.
 \egroup\end{place}
 
 Há uma legenda principal impressa com `\legend` e duas sublegendas para cada objeto inseridas com \^`\sublegend`\nobreak`{<título>}`, bem como um par de ambientes \^`subplace`\footnotemark. Além disso, a ordem das instruções é similar àquela aplicada no ambiente `place`: `subplace` deve ser posto após ambos `\sublegend` e \^`\subsrc``{<fonte>}`, e `\label` deve suceder `\legend`.
+
+Também existe o comando \^`\subnote` que funciona de maneira similar a `\subsrc`.
 
 \footnotetext{A sintaxe \type{\\subplace{<conteúdo>}} está obsoleta. Use `subplace` na forma de ambiente: \type{\\begin{subplace}}.}
 
 Linhas em branco produzem quebra de parágrafo em `multiplace` e, provavelmente, não são desejadas.
 
 Normalmente, espaços em branco depois de `\end{<env>}` são significativos, mas, no caso do ambiente `subplace`, isso não é verdade, porque existe um `\ignorespacesafterend` em sua definição, um comando definido no LaTeX.
+
+Note que, `\legend` precisa ser chamado, do contrário, as `\sublegend`s não seriam impressas porque elas precisam conhecer o valor de `\savedplace`.
 
 Existe, ainda, a possibilidade de um arranjo diferente no `multiplace` usando o parâmetro opcional de `\sublegend`, como se pode ver no \ref{cd:multialt} em conjunto com o resultado em \ref{out:alt}.
 
@@ -608,19 +745,47 @@ Existe, ainda, a possibilidade de um arranjo diferente no `multiplace` usando o 
 \begin{lst}
     \begin{multiplace}
         \sublegend[table]{Tabela de exemplo} \label{tab1}
-        \subsrc{\me}
+        \subsrc{Elaboração própria}
         \hfil
         \begin{subplace}[.25\linewidth]
             \includegraphics[width=\linewidth]{example-image-a}
         \end{subplace}
         %
         \sublegend[figure]{Título de figura} \label{fig1}
-        \subsrc{\me}
+        \subsrc{Elaboração própria}
         \hfil
         \begin{subplace}[.25\linewidth]
             \includegraphics[width=\linewidth]{example-image-b}
         \end{subplace}
         %
+        \sublegend[figure]{Outra figura} \label{fig2}
+        \subsrc{Elaboração própria}
+        \vadjust{\nobreak}\\[10pt] \null \hfil
+        \begin{subplace}[.25\linewidth]
+            \includegraphics[width=\linewidth]{example-image-c}
+        \end{subplace}
+    \end{multiplace}
+
+    Ver Tabela~\ref{tab1}, Figura~\ref{fig1} e Figura~\ref{fig2}.
+\end{lst}
+
+\src{\me}
+\begin{place}\vbox\bgroup
+    \legend{output}{Resultado do \ref{cd:multialt}}
+    \label{out:alt}
+    \begin{multiplace}
+        \sublegend[table]{Tabela de exemplo} \label{tab1}
+        \subsrc{\me}
+        \hfil
+        \begin{subplace}[.25\linewidth]
+            \includegraphics[width=\linewidth]{example-image-a}
+        \end{subplace}
+        \sublegend[figure]{Título de figura} \label{fig1}
+        \subsrc{\me}
+        \hfil
+        \begin{subplace}[.25\linewidth]
+            \includegraphics[width=\linewidth]{example-image-b}
+        \end{subplace}
         \sublegend[figure]{Outra figura} \label{fig2}
         \subsrc{\me}
         \vadjust{\kern10pt}\\ \null \hfil
@@ -628,46 +793,72 @@ Existe, ainda, a possibilidade de um arranjo diferente no `multiplace` usando o 
             \includegraphics[width=\linewidth]{example-image-c}
         \end{subplace}
     \end{multiplace}
-\end{lst}
 
-\src{\me}
-\begin{place}\vbox\bgroup
-\legend{output}{Resultado do \ref{cd:multialt}} \label{out:alt}
-\begin{multiplace}
-    \sublegend[table]{Tabela de exemplo} \label{tab1}
-    \subsrc{\me}
-    \hfil
-    \begin{subplace}[.25\linewidth]
-        \includegraphics[width=\linewidth]{example-image-a}
-    \end{subplace}
-    \sublegend[figure]{Título de figura} \label{fig1}
-    \subsrc{\me}
-    \hfil
-    \begin{subplace}[.25\linewidth]
-        \includegraphics[width=\linewidth]{example-image-b}
-    \end{subplace}
-    \sublegend[figure]{Outra figura} \label{fig2}
-    \subsrc{\me}
-    \vadjust{\kern10pt}\\ \null \hfil
-    \begin{subplace}[.25\linewidth]
-        \includegraphics[width=\linewidth]{example-image-c}
-    \end{subplace}
-\end{multiplace}
+    \parindent=1.5cm Ver Tabela~\ORIref{tab1}, Figura~\ORIref{fig1} e Figura~\ORIref{fig2}.
 \egroup\end{place}
-
-A \ref{out:alt} possui a \ref{tab1}, \ref{fig1} e \ref{fig2}.
 
 \subsection{Tabelas que se partem entre páginas}
 
-No momento não existe suporte para legendar tabelas e outras estruturas que se partem entre páginas. Se o leitor tiver de usar `longtable.sty` \cite{longtable-package} ou `tabularray.sty` \cite{tabularray-package} (este último é mais flexível), será preciso legendar estruturas tabulares com as ferramentas fornecidas por esses pacotes.
+No momento não existe suporte para legendar tabelas e outras estruturas que se partem entre páginas. Se o leitor tiver de usar `longtable.sty` ou `tabularray.sty` (este último é mais flexível), será preciso legendar estruturas tabulares com as ferramentas fornecidas por esses pacotes.
+
+\subsection{Objetos flutuantes e não-flutuantes na mesma página}
+
+Ao compilarmos o \ref{cd:float-nonfloat} notamos que as figuras são impressas como deveriam, mas há um problema: a contagem está fora de ordem. Esse problema pode ser impedido evitando-se inserir objetos flutuantes e não-flutuantes numa mesma página.
+
+\legend{code}{Um objeto flutuante e um não-flutuante na mesma página}
+\label{cd:float-nonfloat}
+\src{\me}
+\begin{lst}
+    \documentclass{abntexto}
+    \begin{document}
+    \legend{figure}{Um título}
+    \begin{place}[here]
+        \includegraphics{example-image-a}
+    \end{place}
+    \legend{figure}{Outro título}
+    \begin{place}[t]
+        \includegraphics{example-image-b}
+    \end{place}
+    \end{document}
+\end{lst}
 
 \section{Formatação de \type{\\cite} e Referências}
 
 O `abntexto` não possui macros para formatação de `\cite` e Referências. Utilize `\usepackage[style=abnt]{biblatex}`.
 
+A definição de `\bibsetup`\footnote{Esse comando só tem efeito em conjunto com o pacote `biblatex`.} encontra-se em `biblatex.def` (acesso em 28/04/2026):
+\begin{xp}
+    \newcommand*{\bibsetup}{%
+        \interlinepenalty=5000\relax
+        \widowpenalty=10000\relax
+        \clubpenalty=10000\relax
+        \raggedbottom
+        \frenchspacing
+        \biburlsetup}
+\end{xp}
+A redefinição em `abnt.bbx` (acesso em 28/04/2026) é:
+\begin{xp}
+    \appto{\bibsetup}{%
+        \nottoggle{justify}{\raggedright}{}%
+        \nottoggle{oldspacing}{%
+            \setlength{\bibitemsep}{\baselineskip}%
+            \linespread{1}%
+        }{}%
+    }%
+\end{xp}
+De acordo com a NBR~6023: \Enquote{As referências devem ser elaboradas em espaço simples, alinhadas à margem esquerda do texto e separadas entre si por uma linha em branco de espaço simples. Quando aparecerem em notas de rodapé, devem ser alinhadas à margem esquerda do texto e, a partir da segunda linha da mesma referência, abaixo da primeira letra da primeira palavra, de forma a destacar o expoente e sem espaço entre elas \cite[p.~5]{abnt-2018-6023-referencias}.}
+No intuito de adequar-se a referida recomendação, o usuário final pode redefinir `\bibsetup` da seguinte forma:
+\begin{xp}
+    \ifdefined\bibsetup
+        \appto\bibsetup{\raggedright\interlinepenalty=10000\relax
+                        \singlesp\bibitemsep=\baselineskip}
+    \fi
+\end{xp}
+O `\interlinepenalty=10000` vai impedir quebras de página nas entradas bibliográficas completamente (a citação acima não toca nessa questão); `\singlesp` deve preceder `\bibitemsep` porque este precisa ter `\baselineskip` simples. Tal redefinição não pode ser incorporada ao código-fonte da classe porque afetaria a compatibilidade com documentos antigos.
+
 \section{Citações}
 
-Visando seguir a norma \textcite{abnt-2023-10520-citacoes}, são fornecidos `\enquote` do pacote `csquotes`, carregado pela classe, e \^`\Enquote`. Para inserir aspas duplas em citações diretas, de até três linhas, use `\enquote{<texto>}\cite{<chave>}`. Porém, se tratando de citações diretas, com mais de três linhas, de parágrafo único, alterne para `\Enquote{<texto> \cite{<chave>}.}`.
+Visando seguir a norma NBR~10520:2023, são fornecidos `\enquote` do pacote `csquotes`, carregado pela classe, e \^`\Enquote`. Para inserir aspas duplas em citações diretas, de até três linhas, use `\enquote{<texto>} \cite{<chave>}`. Porém, se tratando de citações diretas, com mais de três linhas, de parágrafo único, alterne para `\Enquote{<texto> \cite{<chave>}.}`.
 
 \section{Apêndice e Anexo}
 
@@ -687,7 +878,7 @@ Com os comandos \^`\appendix` e \^`\annex` você pode inserir apêndices e anexo
     \end{document}
 \end{lst}
 
-Até a versão anterior desta classe, era necessário ajustar a largura dos rótulos no Sumário manualmente redefinindo os comandos \^`\appendixlabelwidth` e \^`\annexlabelwidth`. Todavia, nesta versão, 4.0.6-beta, eles se ajustam automaticamente com o auxílio das novas macroinstruções \^`\eqbox` e \^`\eqboxsize`.
+Até a versão 3.2.1-beta, era necessário ajustar a largura dos rótulos no Sumário manualmente redefinindo os comandos \^`\appendixlabelwidth` e \^`\annexlabelwidth`. Todavia, a partir da versão 4.0.0-beta, eles se ajustam automaticamente com o auxílio das novas macroinstruções \^`\eqbox` e \^`\eqboxsize`.
 
 \section{Macros para identificação do documento}
 
@@ -729,12 +920,12 @@ Que produz:
 
 Perceba que a instrução \^`\icardPrintGrid` desenha uma grade de quatro linhas para delimitar os contornos do bloco de texto, no intuito de verificar se ele não ultrapassou as margens internas. A definição original de `\icardFont` é
 \begin{xp}
-    \def\icardFont{\raggedright\parindent=2em\ttfamily}
+    \def\icardFont{\raggedright\parindent=1em\abntsmall\ttfamily}
 \end{xp}
 
 \subsection{Utilitário \type{\\Enter}}
 
-O `abntexto` criou o comando \^`\Enter``[<número>]` para produzir um espaço vertical equivalente à tecla `Enter` do teclado. Ele é usado com frequência em `abntexto-exemplo.tex`. O argumento opcional `<número>` é o número de `Enters` que será impresso, por exemplo, `\Enter[2]` imprime um espaço vertical equivalente a dois `Enters` consecutivos. Como `\Enter` é, basicamente, `\vskip\baselineskip`, precedê-lo com `\par` não é necessário, porque `\vskip` possui, a grosso modo, um `\par` em seu funcionamento.
+O `abntexto` criou o comando \^`\Enter``[<número>]` para produzir um espaço vertical equivalente à tecla `Enter` do teclado. Ele é usado com frequência em `abntexto-exemplo.tex`. O argumento opcional `<número>` é o número de `Enters` que será impresso, por exemplo, `\Enter[2]` imprime um espaço vertical equivalente a dois `Enters` consecutivos. Como `\Enter` é, basicamente, `\vskip\baselineskip`, precedê-lo com `\par` não é necessário, porque `\vskip` também realiza quebra de parágrafo.
 
 \subsection{Desativando a hifenização}
 
@@ -744,6 +935,7 @@ O comando \^`\nohyph` impede a hifenização dos parágrafos integralmente, send
                                             % que a formatação do parágrafo
                                             % entre em ação.
 \end{xp}
+Numa `minipage`, o `\par` final não é necessário: há um em `\end{minipage}`.
 
 \subsection{Assinatura da banca}
 
@@ -769,14 +961,14 @@ Veja outro exemplo de `\judgeline` em `abntexto-exemplo.tex`.
 
 \appendix{Cleveref\label{app:cleveref}}
 
-Até a versão passada, 3.2.1-beta, o `abntexto` tinha o poder de inferir o tipo de `\ref` e inserir o substantivo correspondente com auxílio do terceiro parâmetro de `\definelegendplace`. No entanto, esse parâmetro foi removido deixando o referido comando com três argumentos apenas. Como resgatar essa funcionalidade de inferência em `\ref`? Usando o pacote `cleveref.sty` e sua macro `\cref` \cite{cleveref-package}. Veja o exemplo em \ref{cd:cleveref}, cujo resultado é \enquote{Ler Seção 1}.
+Até a versão 3.2.1-beta, o `abntexto` tinha o poder de inferir o tipo de `\ref` e inserir o substantivo correspondente com auxílio do terceiro parâmetro de `\definelegendplace`. No entanto, esse parâmetro foi removido deixando o referido comando com três argumentos apenas. Como resgatar essa funcionalidade de inferência em `\ref`? Usando o pacote `cleveref.sty` e sua macro `\cref` \cite{cleveref-package}. Veja o exemplo em \ref{cd:cleveref}, cujo resultado é \enquote{Ler Seção 1}.
 
 \legend{code}{Exemplo de uso do \type{cleveref.sty}}
 \src\me
 \label{cd:cleveref}
 \begin{lst}
     \documentclass{abntexto}
-    \usepackage[brazil]{babel}
+    \usepackage[brazilian]{babel}
     \usepackage[brazilian,capitalize,noabbrev]{cleveref}
     \begin{document}
         \section{Um título de exemplo\label{sec:ex}}
@@ -784,11 +976,11 @@ Até a versão passada, 3.2.1-beta, o `abntexto` tinha o poder de inferir o tipo
     \end{document}
 \end{lst}
 
-Percebe-se que a chave `brazil` não é reconhecida pelo `cleveref` compelindo-nos a usar `brazilian`. Além disso, ele deve ser carregado depois do `hyperref.sty`. Veja outras funcionalidades no manual do pacote.
+Percebe-se que a chave `brazil` não é reconhecida pelo `cleveref`: use `brazilian`. Além disso, ele deve ser carregado depois do `hyperref.sty`. Veja outras funcionalidades no manual do `cleveref`.
 
 \appendix{Lista de Abreviaturas}
 
-Elemento opcional. O `glossaries-extra.sty` \cite{glossaries-extra-package} consegue criar uma Lista de Abreviaturas, conforme \ref{cd:abbrev}.
+Elemento opcional. Deve constar antes do sumário. O `glossaries-extra.sty` \cite{glossaries-extra-package} consegue criar uma Lista de Abreviaturas, conforme \ref{cd:abbrev}.
 
 \legend{code}{Abreviaturas}
 \src\me
@@ -797,7 +989,7 @@ Elemento opcional. O `glossaries-extra.sty` \cite{glossaries-extra-package} cons
 \begin{lst}
     \documentclass{abntexto}
 
-    \usepackage[brazil]{babel}
+    \usepackage[brazilian]{babel}
     \usepackage{hyperref}
     \usepackage[automake,shortcuts=all,abbreviations]{glossaries-extra}\makeglossaries
     \usepackage[brazilian,capitalize,noabbrev]{cleveref}
@@ -823,7 +1015,7 @@ Note que o `cleveref.sty` deve ser carregado depois de `glossaries-extra.sty`, e
 
 \appendix{Lista de Siglas}
 
-Elemento opcional. O `glossaries-extra.sty` \cite{glossaries-extra-package} também consegue criar uma Lista de Siglas, conforme \ref{cd:acro}.
+Elemento opcional. Deve constar antes do sumário. O `glossaries-extra.sty` \cite{glossaries-extra-package} também consegue criar uma Lista de Siglas, conforme \ref{cd:acro}.
 
 \legend{code}{Siglas}
 \src\me
@@ -832,7 +1024,7 @@ Elemento opcional. O `glossaries-extra.sty` \cite{glossaries-extra-package} tamb
 \begin{lst}
     \documentclass{abntexto}
 
-    \usepackage[brazil]{babel}
+    \usepackage[brazilian]{babel}
     \usepackage{hyperref}
     \usepackage[automake,shortcuts=all,acronym]{glossaries-extra}\makeglossaries
     \usepackage[brazilian,capitalize,noabbrev]{cleveref}
@@ -859,7 +1051,7 @@ Note que o `cleveref.sty` deve ser carregado depois de `glossaries-extra.sty`, e
 
 \appendix{Lista de Símbolos}
 
-Elemento opcional. O `glossaries-extra.sty` \cite{glossaries-extra-package} também consegue criar uma Lista de Símbolos, conforme \ref{cd:simbolos}.
+Elemento opcional. Deve constar antes do sumário. O `glossaries-extra.sty` \cite{glossaries-extra-package} também consegue criar uma Lista de Símbolos, conforme \ref{cd:simbolos}.
 
 \legend{code}{Símbolos}
 \src\me
@@ -868,7 +1060,7 @@ Elemento opcional. O `glossaries-extra.sty` \cite{glossaries-extra-package} tamb
 \begin{lst}
     \documentclass{abntexto}
 
-    \usepackage[brazil]{babel}
+    \usepackage[brazilian]{babel}
     \usepackage{hyperref}
     \usepackage[automake,shortcuts=all,symbols]{glossaries-extra}\makeglossaries
     \usepackage[brazilian,capitalize,noabbrev]{cleveref}
@@ -897,7 +1089,7 @@ Note que o `cleveref.sty` deve ser carregado depois de `glossaries-extra.sty`, e
 
 \appendix{Glossário}
 
-Elemento opcional. Você pode criar glossários com `glossaries-extra` \cite{glossaries-extra-package}, como em \ref{cd:gloss}.
+Elemento opcional. Deve constar logo depois das Referências. Você pode criar glossários com `glossaries-extra` \cite{glossaries-extra-package}, como em \ref{cd:gloss}.
 
 \legend{code}{Glossário}
 \src\me
@@ -906,7 +1098,7 @@ Elemento opcional. Você pode criar glossários com `glossaries-extra` \cite{glo
 \begin{lst}
     \documentclass{abntexto}
 
-    \usepackage[brazil]{babel}
+    \usepackage[brazilian]{babel}
     \usepackage{hyperref}
     \usepackage[automake,shortcuts=all]{glossaries-extra}\makeglossaries
     \usepackage[brazilian,capitalize,noabbrev]{cleveref}
@@ -1063,6 +1255,9 @@ A especificação `H` é obrigatória.
 \pdfstringdefDisableCommands{\def\marks#1#2{}}
 \appendix{\marks0{}\marks1{}Código-fonte\label{ap:codigo-fonte}}
 
+\def\sectionmark   #1{\marks0{\noexpand\ref{ap:codigo-fonte}, Seção \thesection: \unexpanded{#1}}\marks1{}}
+\def\subsectionmark#1{\marks1{\noexpand\ref{ap:codigo-fonte}, Subseção \thesubsection: \unexpanded{#1}}}
+
 \makeatletter
 \newcounter{codesection}
 \newcounter{codesubsection}[codesection]
@@ -1098,9 +1293,11 @@ A especificação `H` é obrigatória.
 \def\codesection{\section}
 \def\codesubsection{\subsection}
 
+% A opção cmyk foi passada para xcolor.
 \colorlet{C}{.}
-\definecolor{tmp}{RGB}{60, 90, 110}  \colorlet{P}{tmp}
-                                     \colorlet{B}{blue!7}
+\definecolor{tmp}{RGB}{128, 0, 64}
+\colorlet{P}{tmp}
+\colorlet{B}{blue!7}
 
 \expanded{\noexpand\lstdefinelanguage{mylang}{
     language    = [latex]tex,
